@@ -11,7 +11,7 @@ export function webUrl(value) {
 const text = z.string().max(12000);
 const url = z.string().max(8000).refine(v => { try { webUrl(v); return true; } catch { return false; } }, 'Use a web URL without credentials.');
 export const stepSchema = z.object({
-  id: z.string().max(80), type: z.enum(['navigate', 'click', 'fill', 'select', 'check', 'press', 'extract', 'manual']),
+  id: z.string().max(80), type: z.enum(['navigate', 'click', 'fill', 'select', 'check', 'press', 'extract', 'manual', 'assert']),
   label: z.string().min(1).max(300), selector: z.string().max(3000).optional(),
   alternatives: z.array(z.string().max(3000)).max(5).optional(),
   value: text.optional(), url: url.optional(), origin: z.string().max(500).optional(),
@@ -20,6 +20,7 @@ export const stepSchema = z.object({
 }).strict().superRefine((s, ctx) => {
   if (s.type === 'navigate' && !s.url) ctx.addIssue({ code: 'custom', message: 'Navigation needs a URL.' });
   if (!['navigate', 'manual'].includes(s.type) && !s.selector) ctx.addIssue({ code: 'custom', message: 'This step needs an element selector.' });
+  if (s.type === 'assert' && !s.value?.trim()) ctx.addIssue({ code:'custom', message:'Outcome checks need expected text.' });
   if (s.type === 'press' && !['Enter', 'Tab', 'Escape', 'ArrowDown', 'ArrowUp'].includes(s.value || '')) ctx.addIssue({ code: 'custom', message: 'Unsupported key.' });
   if (s.secret && s.value) ctx.addIssue({ code: 'custom', message: 'Private fields cannot store values.' });
   if (s.secret && s.type !== 'manual') ctx.addIssue({ code: 'custom', message: 'Private fields must be manual steps.' });

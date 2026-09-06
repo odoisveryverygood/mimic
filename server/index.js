@@ -39,7 +39,7 @@ const idleCommand = req => {
   if (store.data.runs.find(r => r.id === engine.activeRun?.id)?.commandId === item.id || engine.recording?.commandId === item.id) throw new Error('Finish this command’s active session before editing it.');
   return item;
 };
-app.get('/api/state', (req,res) => res.json({ ...store.data, ...engine.status(), token, practiceUrl:`${base}/practice`, version:'1.0.0' }));
+app.get('/api/state', (req,res) => res.json({ ...store.data, ...engine.status(), token, practiceUrl:`${base}/practice`, version:'2.0.0',capabilities:['outcomes'] }));
 app.post('/api/recordings', async (req,res) => {
   const input = recordSchema.parse(req.body);
   if (input.commandId && !store.data.commands.some(c=>c.id===input.commandId)) throw new Error('Command not found.');

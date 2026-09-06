@@ -10,3 +10,7 @@ output/
 extension/build/
 public/downloads/
 .vercel
+
+.env
+.env.*
+!.env.example

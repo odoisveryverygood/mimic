@@ -9,7 +9,7 @@ export const dashboardUrl=identity.dashboardOrigin;
 type Runtime={lastError?:{message?:string};sendMessage:(id:string,message:unknown,cb:(response:{ok:boolean;data:unknown;error?:string}|undefined)=>void)=>void};
 const runtime=()=>((globalThis as unknown as {chrome?:{runtime?:Runtime}}).chrome?.runtime);
 let connectedBefore=false;
-const preview:State={version:'1.1.0',commands:[starter(identity.dashboardOrigin)],demonstrations:[],runs:[],recording:null,activeRun:null,browserOpen:false,busy:false,token:'',practiceUrl:`${identity.dashboardOrigin}/practice`,connected:false};
+const preview:State={version:'2.0.0',commands:[starter(identity.dashboardOrigin)],demonstrations:[],runs:[],recording:null,activeRun:null,browserOpen:false,busy:false,token:'',practiceUrl:`${identity.dashboardOrigin}/practice`,connected:false};
 
 export async function api(path:string,body?:unknown,method='POST',token=''):Promise<any>{
   if(!isCloud){const response=await fetch(`/api${path}`,{method,headers:{'Content-Type':'application/json','X-Mimic-Token':token},body:body===undefined?undefined:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw new Error(result.error||'Request failed.');return result;}

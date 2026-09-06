@@ -9,7 +9,8 @@ async function handle(message,sender){
   if(!origins.includes(sender.origin||new URL(sender.url).origin))throw new Error('This website is not allowed to connect to Mimic.');
   if(message?.channel!=='mimic-v1'||typeof message.path!=='string'||!['GET','POST','PUT','DELETE'].includes(message.method)||JSON.stringify(message).length>2_000_000)throw new Error('Invalid request.');
   const {store,engine}=await ready;const {path,method,body}=message;
-  if(path==='/state'&&method==='GET')return {...store.data,...engine.status(),token:'extension-managed',practiceUrl:`${identity.dashboardOrigin}/practice`,version:'1.1.0',connected:true};
+  if(path==='/state'&&method==='GET')return {...store.data,...engine.status(),token:'extension-managed',practiceUrl:`${identity.dashboardOrigin}/practice`,version:'2.0.0',connected:true,capabilities:['outcomes','repair-tests']};
+  if(path==='/repairs/test'&&method==='POST')return engine.testRepair(body);
   if(path==='/recordings'&&method==='POST')return engine.startRecording(body);
   if(path==='/recordings/pause'&&method==='POST')return engine.pauseRecording();
   if(path==='/recordings/stop'&&method==='POST')return engine.finishRecording();

@@ -9,3 +9,6 @@ dist-cloud
 *.log
 Launch Mimic.command
 .DS_Store
+
+.env
+.env.*

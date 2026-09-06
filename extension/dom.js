@@ -1,14 +1,15 @@
 // Runs as a fixed, bundled function in the one tab Mimic opened for this session.
 // Imported workflows supply data, never JavaScript source.
-export function targetAction(step,operation) {
-  if(window.top!==window)return {error:'Embedded frames are not supported.'};
+export function targetAction(step,operation,isolatedRepair=false) {
+  if(window.top!==window&&!isolatedRepair)return {error:'Embedded frames are not supported.'};
   if(step.origin&&location.origin!==step.origin)return {retry:true};
   let el;
   for(const selector of [step.selector,...(step.alternatives||[])]){
     try{
       const matches=document.querySelectorAll(selector);
-      if(matches.length!==1)continue;
-      const node=matches[0],rect=node.getBoundingClientRect(),style=getComputedStyle(node);
+      const visible=[...matches].filter(n=>{const r=n.getBoundingClientRect(),s=getComputedStyle(n);return r.width&&r.height&&s.visibility!=='hidden'&&s.display!=='none';});
+      if(visible.length!==1)continue;
+      const node=visible[0],rect=node.getBoundingClientRect(),style=getComputedStyle(node);
       if(rect.width&&rect.height&&style.visibility!=='hidden'&&style.display!=='none'){el=node;break;}
     }catch{}
   }
@@ -33,6 +34,7 @@ export function targetAction(step,operation) {
     if(![...el.options].some(o=>o.value===step.value))return {error:'That option does not exist in this menu.'};
     el.value=step.value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return {ok:true};
   }
+  if(operation==='assert'){const text=(el.innerText||'').trim().slice(0,20000);return text.includes(step.value)?{text}: {retry:true};}
   if(operation==='extract')return {text:(el.innerText||'').trim().slice(0,20000)};
   return {error:'Unsupported browser action.'};
 }

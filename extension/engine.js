@@ -1,5 +1,6 @@
 import {id,now,webUrl,normalizeSteps,materialize,stepSchema,recordSchema,runSchema} from '../server/model.js';
 import {installRecorder} from '../server/recorder.js';
+import {repairTestSchema,digest,repairFrame} from '../server/repair-model.js';
 import {targetAction} from './dom.js';
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -12,8 +13,8 @@ export class ChromeEngine {
   }
   async persist(){if(this.recording)this.store.data.activeRecording=this.recording;else delete this.store.data.activeRecording;await this.store.save();}
   status(){return {recording:this.recording,activeRun:this.activeRun?this.store.data.runs.find(r=>r.id===this.activeRun.id):null,browserOpen:this.tabId!==null,busy:this.locked};}
-  async send(method,params={}){if(this.tabId===null)throw new Error('The workflow tab is no longer connected.');return chrome.debugger.sendCommand({tabId:this.tabId},method,params);}
-  async evaluate(fn,...args){const result=await this.send('Runtime.evaluate',{expression:`(${fn.toString()})(${args.map(v=>JSON.stringify(v)).join(',')})`,awaitPromise:true,returnByValue:true});if(result.exceptionDetails)throw new Error('The page did not accept this operation.');return result.result?.value;}
+  async send(method,params={}){if(this.tabId===null)throw new Error('The workflow tab is no longer connected.');return chrome.debugger.sendCommand({tabId:this.tabId,...(method==='Runtime.evaluate'&&this.repairSessionId?{sessionId:this.repairSessionId}:{})},method,params);}
+  async evaluate(fn,...args){const result=await this.send('Runtime.evaluate',{expression:`(${fn.toString()})(${args.map(v=>JSON.stringify(v)).join(',')})`,awaitPromise:true,returnByValue:true,...(this.repairContextId?{contextId:this.repairContextId,timeout:2000}:{})});if(result.exceptionDetails)throw new Error('The page did not accept this operation.');return result.result?.value;}
   async open(){
     await this.detach();
     const tab=await chrome.tabs.create({url:'about:blank',active:true});this.tabId=tab.id;
@@ -33,6 +34,12 @@ export class ChromeEngine {
   enqueue(fn){const result=this.events.catch(()=>{}).then(fn);this.events=result;result.catch(()=>{});return result;}
   event(source,method,params){
     if(source.tabId!==this.tabId)return;
+    if(method==='Target.attachedToTarget'&&this.repairTesting&&params.targetInfo.type==='iframe'){
+      const session={tabId:this.tabId,sessionId:params.sessionId};
+      this.repairAttach=(async()=>{for(const [command,args] of [['Page.enable',{}],['Runtime.enable',{}],['Network.enable',{}],['Network.setBlockedURLs',{urls:['*']}],['Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Request'}]}]])await chrome.debugger.sendCommand(session,command,args);this.repairSessionId=params.sessionId;await chrome.debugger.sendCommand(session,'Runtime.runIfWaitingForDebugger');})();this.repairAttach.catch(()=>{});
+    }
+    if(method==='Fetch.requestPaused'&&this.repairTesting)chrome.debugger.sendCommand(source,'Fetch.failRequest',{requestId:params.requestId,errorReason:'BlockedByClient'}).catch(()=>{});
+    if(method==='Page.javascriptDialogOpening'&&this.repairTesting)this.send('Page.handleJavaScriptDialog',{accept:false}).catch(()=>{});
     if(method==='Page.loadEventFired')this.loaded++;
     if(method==='Runtime.executionContextCreated'){const c=params.context;if(c.auxData?.isDefault)this.contexts.set(c.id,c.auxData.frameId);}
     if(method==='Runtime.executionContextDestroyed')this.contexts.delete(params.executionContextId);
@@ -95,7 +102,40 @@ export class ChromeEngine {
       this.execute(run,steps).catch(()=>{});return run;
     }finally{this.locked=false;}
   }
-  async target(step,operation){const started=Date.now();while(Date.now()-started<12000){if(this.activeRun?.cancelled)throw new Error('Run cancelled.');let result;try{result=await this.evaluate(targetAction,step,operation);}catch{await sleep(100);continue;}if(result?.error)throw new Error(result.error);if(result&&!result.retry)return result;await sleep(120);}throw new Error(`Could not uniquely find “${step.label}”. Check the page or edit its selector.`);}
+  async testRepair(body){
+    const input=repairTestSchema.parse(body);
+    if(this.locked||this.recording||this.activeRun)throw new Error('Finish the current browser session first.');
+    this.locked=true;
+    try{
+      await this.open();this.repairTesting=true;this.repairSessionId=null;this.repairAttach=null;
+      await this.send('Target.setAutoAttach',{autoAttach:true,waitForDebuggerOnStart:true,flatten:true,filter:[{type:'iframe',exclude:false}]});
+      await this.send('Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Request'}]});
+      await this.send('Network.enable');await this.send('Network.setBlockedURLs',{urls:['*']});
+      const run={id:id(),commandId:input.caseId,commandName:input.name,mode:'run',kind:'repair',phase:input.phase,sourceHash:await digest(input.html),testHash:await digest(JSON.stringify([input.selector,input.expected,input.click])),status:'running',startedAt:now(),currentStep:0,steps:[{id:id(),type:'assert',label:'Regression outcome',status:'running'}],outputs:[]};
+      this.store.data.runs.unshift(run);this.activeRun={id:run.id,cancelled:false,resume:null};await this.persist();
+      this.executeRepair(run,input).catch(()=>{});return run;
+    }catch(error){await this.detach();this.repairTesting=false;throw error;}finally{this.locked=false;}
+  }
+  async executeRepair(run,input){
+    const testTab=this.tabId;
+    let deadline;
+    try{
+      // The browser sandbox prevents popup, top-navigation, storage and form access.
+      // Close the dedicated test tab on timeout, including a script that never yields.
+      deadline=setTimeout(()=>chrome.tabs.remove(testTab).catch(()=>{}),30000);
+      await this.send('Page.setDocumentContent',{frameId:this.mainFrameId,html:repairFrame(input.html)});
+      const started=Date.now();let child;
+      while(!child&&!this.repairAttach&&Date.now()-started<5000){const tree=await this.send('Page.getFrameTree');child=tree.frameTree.childFrames?.find(f=>f.frame.url==='about:srcdoc');if(!child)await sleep(50);}
+      if(this.repairAttach){await this.repairAttach;const tree=await chrome.debugger.sendCommand({tabId:this.tabId,sessionId:this.repairSessionId},'Page.getFrameTree');child=tree.frameTree;}
+      if(!child)throw new Error('The isolated test frame did not load.');
+      const world=await chrome.debugger.sendCommand({tabId:this.tabId,...(this.repairSessionId?{sessionId:this.repairSessionId}:{})},'Page.createIsolatedWorld',{frameId:child.frame.id,worldName:'mimic-repair-verifier'});this.repairContextId=world.executionContextId;
+      if(input.click)await this.click(await this.target({selector:input.click,label:'Regression click'},'locate'));
+      const result=await this.target({selector:input.selector,value:input.expected,label:'Expected regression result'},'assert');
+      run.outputs.push({label:'Observed outcome',text:result.text});run.status='passed';run.steps[0].status='passed';
+    }catch(error){run.status=this.activeRun?.cancelled?'cancelled':'failed';run.error=String(error.message||error).slice(0,500);run.steps[0].status=run.status;}
+    finally{clearTimeout(deadline);run.finishedAt=now();this.activeRun=null;this.repairContextId=null;this.repairSessionId=null;this.repairAttach=null;await chrome.tabs.remove(testTab).catch(()=>{});await this.detach();this.repairTesting=false;await this.persist();}
+  }
+  async target(step,operation){const started=Date.now();while(Date.now()-started<12000){if(this.activeRun?.cancelled)throw new Error('Run cancelled.');let result;try{result=await this.evaluate(targetAction,step,operation,!!this.repairContextId);}catch{await sleep(100);continue;}if(result?.error)throw new Error(result.error);if(result&&!result.retry)return result;await sleep(120);}throw new Error(operation==='assert'?`Outcome check failed: expected “${step.value}” at ${step.selector}.`:`Could not uniquely find “${step.label}”. Check the page or edit its selector.`);}
   async click(point){await this.send('Input.dispatchMouseEvent',{type:'mousePressed',x:point.x,y:point.y,button:'left',clickCount:1});await this.send('Input.dispatchMouseEvent',{type:'mouseReleased',x:point.x,y:point.y,button:'left',clickCount:1});}
   async execute(run,steps){
     try{
@@ -123,6 +163,7 @@ export class ChromeEngine {
           if(step.value==='Enter')await this.send('Input.dispatchKeyEvent',{type:'char',text:'\r',...key});
           await this.send('Input.dispatchKeyEvent',{type:'keyUp',...key});
         }
+        if(step.type==='assert'){const output=await this.target(step,'assert');run.outputs.push({label:step.label,text:output.text});}
         if(step.type==='extract'){const output=await this.target(step,'extract');run.outputs.push({label:step.label,text:output.text});}
         result.status='passed';result.finishedAt=now();await this.persist();
       }

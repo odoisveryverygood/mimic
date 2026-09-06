@@ -55,3 +55,7 @@ The build consumes `extension/identity.json`, containing only a public extension
 The extension integration test launches a real Chromium extension against a server serving **only static assets**, records two workflows, learns a parameter, replays a third value through Chrome's debugging API, verifies a review checkpoint and captured output, then restarts the browser and verifies persistence. The dashboard makes no `/api/` HTTP requests in this flow. The original Node recorder tests also remain available.
 
 References: [Chrome extension messaging](https://developer.chrome.com/docs/extensions/develop/concepts/messaging), [Chrome debugger API](https://developer.chrome.com/docs/extensions/reference/api/debugger), [service-worker lifetime](https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle), [Playwright extension testing](https://playwright.dev/docs/chrome-extensions).
+
+## Version 2 workbench
+
+The companion is now version 2.0.0. Reload the existing installation after replacing its files. Scenarios, repair sources, and open loops are saved in dashboard site storage; workflow records remain in extension storage. Export both backups as described in [UPGRADE-V2.md](UPGRADE-V2.md). AI planning, patch generation, inbox connections, and repository automation are not connected.

@@ -1,4 +1,5 @@
 import {chromium} from 'playwright';
+import {verifyWorkbench} from '../tests/workbench-browser.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -25,6 +26,7 @@ const context=await chromium.launchPersistentContext(profile,{channel:'chromium'
 try{
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base);await page.getByText('Connected to your Chrome companion',{exact:true}).waitFor({timeout:30000});
+  await page.getByRole('button',{name:'My commands',exact:true}).click();
   await page.getByRole('button',{name:'Try command',exact:true}).click();
   await page.getByRole('textbox',{name:'Reading title',exact:true}).fill('Mimic live deployment verification');
   await page.getByRole('button',{name:'Start test',exact:true}).click();
@@ -37,8 +39,10 @@ try{
   const screenshots=path.join(root,'screenshots');fs.mkdirSync(screenshots,{recursive:true});
   await page.screenshot({path:path.join(screenshots,'cloud-run.png')});
   await page.getByRole('button',{name:'Close',exact:true}).click();await page.screenshot({path:path.join(screenshots,'cloud-dashboard.png')});
+  const rpc=(route,body,method='POST')=>page.evaluate(({extensionId,path,body,method})=>new Promise((resolve,reject)=>chrome.runtime.sendMessage(extensionId,{channel:'mimic-v1',path,method,body},r=>r?.ok?resolve(r.data):reject(Error(r?.error||'No response')))),{extensionId:identity.extensionId,path:route,body,method});
+  const workbench=await verifyWorkbench(page,context,rpc,base,path.join(screenshots,'mimic-v2-control-room.png'));
   const requests=await page.evaluate(()=>[...new Set(performance.getEntriesByType('resource').map(r=>r.name))]);
   assert.ok(!requests.some(url=>url.includes('127.0.0.1')||url.includes('localhost')||new URL(url).pathname.startsWith('/api/')));
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({url:base,publicRoutes:'HTTP 200',extensionDownload:'matches production source; only production origin permitted',browserRun:'6 of 6 steps passed',result:'Saved “Mimic live deployment verification” to Research.',localServerRequests:0,pageErrors:0},null,2));
+  console.log(JSON.stringify({url:base,workbench,publicRoutes:'HTTP 200',extensionDownload:'matches production source; only production origin permitted',browserRun:'6 of 6 steps passed',result:'Saved “Mimic live deployment verification” to Research.',localServerRequests:0,pageErrors:0},null,2));
 }finally{await context.close();fs.rmSync(profile,{recursive:true,force:true});}

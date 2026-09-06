@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {verifyWorkbench} from './workbench-browser.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,7 +28,9 @@ test('extension storage recovers interrupted work and validates imports',async()
 
 test('real Chrome extension: web dashboard → record twice → learn → replay → checkpoint → output → restart',{timeout:180000},async()=>{
   execFileSync(process.execPath,['scripts/build-extension.mjs'],{cwd:root,env:{...process.env,MIMIC_EXTENSION_DEV:'1'},stdio:'pipe'});
+  let blockedTestRequests=0;
   const server=http.createServer((req,res)=>{
+    if(req.url.startsWith('/sandbox-probe')){blockedTestRequests++;res.end('unexpected network request');return;}
     if(req.url==='/practice'){res.setHeader('Content-Type','text/html');res.end(practiceHtml);return;}
     let file=path.join(root,'dist-cloud',req.url.split('?')[0]);if(req.url==='/'||!fs.existsSync(file)||fs.statSync(file).isDirectory())file=path.join(root,'dist-cloud/index.html');
     const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.ttf':'font/ttf','.svg':'image/svg+xml','.json':'application/json'};
@@ -64,6 +67,13 @@ test('real Chrome extension: web dashboard → record twice → learn → replay
     await context.close();context=await launch();const restored=await context.newPage();await restored.goto('http://127.0.0.1:4319');
     const state=await until(async()=>{try{return await restored.evaluate(extensionId=>new Promise(resolve=>chrome.runtime.sendMessage(extensionId,{channel:'mimic-v1',path:'/state',method:'GET'},r=>resolve(r?.data))),identity.extensionId)}catch{return false}});
     assert.equal(state.commands.find(c=>c.id===command.id).name,'Save from the web');assert.equal(state.runs.find(r=>r.id===started.id).status,'passed');
+    const restoredRpc=(route,body,method='POST')=>restored.evaluate(({extensionId,path,body,method})=>new Promise((resolve,reject)=>chrome.runtime.sendMessage(extensionId,{channel:'mimic-v1',path,method,body},r=>r?.ok?resolve(r.data):reject(Error(r?.error||'No response')))),{extensionId:identity.extensionId,path:route,body,method});
+    await verifyWorkbench(restored,context,restoredRpc,'http://127.0.0.1:4319');
+    const pagesBefore=context.pages().length;
+    const sandbox=await restoredRpc('/repairs/test',{caseId:id(),name:'Sandbox boundary',phase:'after',click:'#probe',selector:'#result',expected:'isolated',html:`<button id="probe" onclick="try{top.location='http://127.0.0.1:4319/sandbox-probe-top'}catch{};window.open('http://127.0.0.1:4319/sandbox-probe-popup');fetch('http://127.0.0.1:4319/sandbox-probe-fetch').catch(()=>{});document.querySelector('#result').textContent='isolated'">Probe</button><p id="result"></p><img src="http://127.0.0.1:4319/sandbox-probe-image">`});
+    const isolated=await until(async()=>{const s=await restoredRpc('/state',undefined,'GET');return !s.activeRun?s.runs.find(r=>r.id===sandbox.id):null});
+    assert.equal(isolated.status,'passed',isolated.error);assert.equal(blockedTestRequests,0,'Sandbox must block network, popups, and top navigation');assert.equal(context.pages().length,pagesBefore,'Repair test tab is closed');
+
   }finally{
     await context?.close();await new Promise(r=>server.close(r));fs.rmSync(profile,{recursive:true,force:true});
     execFileSync(process.execPath,['scripts/build-extension.mjs'],{cwd:root,stdio:'pipe'});

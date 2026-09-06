@@ -153,6 +153,11 @@ export class Engine {
           if (step.type === 'check') await target.setChecked(step.value === 'true');
           if (step.type === 'click') await target.click();
           if (step.type === 'press') await target.press(step.value);
+          if (step.type === 'assert') {
+            const deadline=Date.now()+12000;let content='';
+            while(Date.now()<deadline){if(this.activeRun?.cancelled)throw new Error('Run cancelled.');content=(await target.innerText()).trim();if(content.includes(step.value))break;await new Promise(r=>setTimeout(r,100));}
+            if(!content.includes(step.value))throw new Error('Outcome check failed.');run.outputs.push({label:step.label,text:content});
+          }
           if (step.type === 'extract') {
             const content = (await target.innerText()).trim().slice(0,20000);
             run.outputs.push({label:step.label, text:content});

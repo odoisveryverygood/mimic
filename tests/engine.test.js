@@ -40,6 +40,8 @@ test('real browser: record twice, infer changing inputs, replay a third value, e
     assert.equal(run.outputs[0].text,'Saved “Third, automated reading” to Research.');
     const entries=await engine.page.evaluate(()=>JSON.parse(localStorage.getItem('mimic-readings')));
     assert.equal(entries.length,3);assert.equal(entries[0].title,'Third, automated reading');
+    const outcome=structuredClone(learned);outcome.steps.push({id:id(),type:'assert',label:'Saved confirmation',selector:'#old-confirmation',alternatives:['#confirmation'],value:'Saved',checkpoint:false,secret:false});
+    const checked=await engine.run(outcome,{values:{reading_title:'Outcome with fallback'},mode:'test'});await until(()=>checked.status==='paused');engine.continueRun(checked.id);await until(()=>!engine.activeRun);assert.equal(checked.status,'passed',checked.error);assert.match(checked.outputs.at(-1).text,/Outcome with fallback/);
     const cancelled=await engine.run(learned,{values:{reading_title:'Must not save'},mode:'test'});
     await until(()=>cancelled.status==='paused');await engine.cancelRun(cancelled.id);await until(()=>!engine.activeRun);
     assert.equal(cancelled.status,'cancelled');

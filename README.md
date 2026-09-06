@@ -1,6 +1,8 @@
 # Mimic
 
-Teach your browser a workflow. Turn it into a reusable command.
+A personal workbench for browser workflows, business scenarios, reproducible repairs, and unfinished admin.
+
+**Version 2:** See [UPGRADE-V2.md](UPGRADE-V2.md) for the four workspaces, tested capabilities, storage, and remaining integrations.
 
 **Web edition:** Mimic now has a Vercel-hosted dashboard and a Chrome companion that removes the local server requirement. See [CLOUD-SETUP.md](CLOUD-SETUP.md) for the one-time extension setup. The instructions below describe the original local edition, which is still available.
 
@@ -100,6 +102,7 @@ Download a full library backup from **How Mimic works**. To restore it, stop Mim
 ```sh
 npm run check
 npm run build
+npm run build:cloud
 npm test
 ```
 

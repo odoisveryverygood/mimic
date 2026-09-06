@@ -1,6 +1,6 @@
 {
   "name": "mimic-local",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "description": "Teach your browser a workflow. Turn it into a reusable command.",
