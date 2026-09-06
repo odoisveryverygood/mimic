@@ -1,32 +1,45 @@
-# Production deployment — September 6, 2026
+# Production deployment — Mimic 2
 
-- **URL:** https://mimic-aradhya.vercel.app
-- **Target:** production
-- **Status:** READY (confirmed through Vercel's deployment API)
-- **Project:** `mimic-aradhya`
-- **Deployment:** `dpl_7Er4DFLXWxaoawGjNcKjCTeVMRGj`
-- **Framework:** Vite, static dashboard and companion download
-- **Build duration:** approximately 11 seconds (14 seconds for the deployment command)
-- **Commit:** unversioned local workspace; no Git repository was present
+- URL: https://mimic-aradhya.vercel.app
+- Target: production
+- Status: READY, confirmed with Vercel CLI deployment result and `vercel inspect`
+- Project: `mimic-aradhya`, team `vendraft`
+- Deployment: `dpl_FuxMKvxhQoJ7uZnHH8PezusBveCH`
+- Immutable deployment URL: https://mimic-aradhya-ea9lhfpk5-vendraft.vercel.app
+- Application commit: `1e6f210`
+- Framework: Vite static dashboard with Chrome companion
+- Deployment command duration: approximately 12 seconds
+- Released September 6, 2026
+- Public source: https://github.com/odoisveryverygood/mimic
 
-## Validation
+## Verified behavior
 
-- TypeScript check passed.
-- Local and cloud production builds passed. Vite reports two non-blocking annotation warnings from Zod dependencies; both bundles were produced successfully.
-- Full suite: **10 tests passed, 0 failed**. It includes the original recorder and the new real Chrome extension flow.
-- Public dashboard, hosted practice page, and companion ZIP each returned **HTTP 200** without authentication.
-- The manifest and worker in the downloaded production ZIP exactly matched the locally built production files. Only `https://mimic-aradhya.vercel.app/*` is permitted to message the extension; the development test origin is absent.
-- A real Chromium browser loaded the production extension and the actual Vercel URL. Through the dashboard UI, the six-step sample command filled the hosted practice page, paused before saving, resumed, and captured **Saved “Mimic live deployment verification” to Research.**
-- No localhost or `/api/` HTTP calls occurred during the cloud UI run. Browser page errors: **0**.
-- Command persistence was separately verified through browser restarts in the extension integration test.
-- Screenshots: `screenshots/cloud-dashboard.png` and `screenshots/cloud-run.png`.
+TypeScript checking, cloud and local production builds passed. Full suite: **15 passed, 0 failed**. Vite emitted only the pre-existing Zod annotation warnings.
+
+`node scripts/verify-live.mjs` loaded the real production site with the production companion in an isolated Chromium profile and verified:
+
+- Dashboard, hosted practice page, and companion ZIP return HTTP 200 without authentication.
+- Downloaded companion manifest and worker match the production build; only the production dashboard origin is allowed.
+- The original six-step command pauses for review, resumes, and captures the saved confirmation.
+- A new outcome assertion added through the Workflows UI passes only after observing its expected result.
+- A scenario is saved and compared, with an actual ending-cash result recorded.
+- An admin request cannot close with an unfinished checklist; checked items and completion evidence persist.
+- A repair original fails, the authored correction passes the same test, and editing the candidate invalidates that proof.
+- Workbench data survives dashboard reloads. Extension command history survives browser restarts in the integration suite.
+- No localhost or `/api/` HTTP requests. Browser page errors: 0.
+
+Additional integration checks verify the repair sandbox blocks attempted fetches, image requests, popups, and top-level navigation, then closes its test tab. Desktop and mobile screenshots are in `screenshots/mimic-v2-*.png`.
+
+## User Chrome installation
+
+The existing companion folder was updated and reloaded through Chrome's Extensions UI. The UI confirms version **2.0.0**, enabled, with the same extension ID `mobgpafflgnciihjnpbfmnhpoaaipnlb`. Permissions remain `debugger`, `storage`, and `tabs`. The user's live dashboard shows **Chrome connected**; the existing command and demonstration remain available. Verification scenarios and test cases were created only in isolated test profiles.
 
 ## Operational boundary
 
-The production site is available independently of this Codex task or the original Node process. Browser recording and replay require the companion to be installed in the Chrome profile where the user opens the dashboard. Verification installed it in an isolated test profile; it has **not** been installed in the user's everyday Chrome profile. The production site provides the download and one-time installation instructions.
+See [UPGRADE-V2.md](UPGRADE-V2.md) for the full capability matrix. Model-key destination approval was declined, so no model key was created or saved. Automatic planning and patch generation are not connected. Inbox, repository, background monitoring, and unattended cloud execution are not connected.
 
-The web edition stores workflow data in Chrome, not on Vercel. The original `.mimic/` library and its browser profile were excluded from deployment. The original local server was stopped after deployment so the new setup does not rely on it.
+The website stays available independently of Codex or localhost. Browser workflows require Chrome open with the companion. Workbench data remains in dashboard site storage; command and browser-run data remain in the companion. Neither library is uploaded to Vercel. Export the two backups separately.
 
-## Post-deployment observability
+## Observability
 
-The public routes and a full browser run were checked directly. There are no cloud workflow execution functions to monitor: browser control runs inside the companion. No ongoing monitoring or log drains were configured.
+Public route checks and production browser verification passed with no page errors. The app has no cloud workflow functions producing runtime logs. No ongoing monitoring or log drains were configured.
