@@ -1,0 +1,12 @@
+node_modules/
+dist/
+dist-cloud/
+.mimic/
+.DS_Store
+output/
+.playwright-cli/
+*.log
+.vercel/
+extension/build/
+public/downloads/
+.vercel

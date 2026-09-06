@@ -1,0 +1,11 @@
+.mimic
+node_modules
+.git
+.playwright-cli
+screenshots
+tests
+dist
+dist-cloud
+*.log
+Launch Mimic.command
+.DS_Store

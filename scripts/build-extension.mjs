@@ -1,0 +1,21 @@
+import {build} from 'esbuild';
+import {zipSync} from 'fflate';
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {practiceHtml} from '../server/practice.js';
+
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const identity=JSON.parse(fs.readFileSync(path.join(root,'extension/identity.json'),'utf8'));
+const dev=process.env.MIMIC_EXTENSION_DEV==='1';
+const origins=[identity.dashboardOrigin,...(dev?['http://127.0.0.1:4319']:[])];
+const out=path.join(root,'extension/build');fs.mkdirSync(out,{recursive:true});
+await build({entryPoints:[path.join(root,'extension/background.js')],outfile:path.join(out,'background.js'),bundle:true,format:'esm',platform:'browser',target:'chrome120',minify:false,define:{__MIMIC_ALLOWED_ORIGINS__:JSON.stringify(origins)}});
+const manifest={manifest_version:3,name:'Mimic — Browser Companion',version:'1.1.0',minimum_chrome_version:'120',description:'Record a browser workflow, learn its inputs, and replay it from your Mimic dashboard. No local server.',key:identity.key,permissions:['debugger','storage','tabs'],background:{service_worker:'background.js',type:'module'},action:{default_title:'Open Mimic'},externally_connectable:{matches:origins.map(o=>`${o}/*`)}};
+fs.writeFileSync(path.join(out,'manifest.json'),JSON.stringify(manifest,null,2));
+fs.writeFileSync(path.join(out,'INSTALL.txt'),`Mimic Browser Companion\n\n1. Keep this folder in a permanent location.\n2. In Chrome, open chrome://extensions.\n3. Turn on Developer mode.\n4. Click Load unpacked and select this folder.\n5. Open ${identity.dashboardOrigin}.\n\nThe extension controls only the workflow tab you ask it to open. Chrome shows a debugging indicator while recording or replaying. All recordings and command data stay in this Chrome profile. Removing the extension removes its data; export a backup first. No local server or Terminal process is required.\n\nThis is an unpacked personal extension, not a Chrome Web Store listing.\n`);
+const files={};for(const name of ['manifest.json','background.js','INSTALL.txt'])files[`mimic-browser-companion/${name}`]=new Uint8Array(fs.readFileSync(path.join(out,name)));
+const downloads=path.join(root,'public/downloads');fs.mkdirSync(downloads,{recursive:true});
+if(!dev)fs.writeFileSync(path.join(downloads,'mimic-browser-companion.zip'),zipSync(files,{level:9}));
+fs.writeFileSync(path.join(root,'public/practice.html'),practiceHtml);
+console.log(`Built ${dev?'development':'production'} companion ${identity.extensionId}. Dashboard: ${identity.dashboardOrigin}`);
