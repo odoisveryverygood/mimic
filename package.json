@@ -1,6 +1,6 @@
 {
   "name": "mimic-local",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "description": "Teach your browser a workflow. Turn it into a reusable command.",
@@ -12,20 +12,29 @@
     "check": "tsc --noEmit",
     "build:extension": "node scripts/build-extension.mjs",
     "build:cloud": "npm run build:extension && vite build --mode cloud",
-    "test:extension": "node --test tests/extension.test.js"
+    "test:extension": "node --test tests/extension.test.js",
+    "db:migrate": "node --env-file=.env scripts/migrate.mjs"
   },
   "dependencies": {
+    "@neondatabase/neon-js": "^0.7.0-beta",
+    "@vercel/functions": "^3.9.5",
+    "drizzle-orm": "^0.45.2",
     "express": "^5.1.0",
+    "jose": "^6.2.12",
     "lucide-react": "^0.468.0",
+    "pg": "^8.23.0",
     "playwright": "^1.55.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "stripe": "^22.6.1",
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "drizzle-kit": "^0.31.10",
     "esbuild": "^0.28.2",
     "fflate": "^0.8.3",
     "typescript": "^5.9.0",

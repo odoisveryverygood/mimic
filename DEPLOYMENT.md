@@ -43,3 +43,15 @@ The website stays available independently of Codex or localhost. Browser workflo
 ## Observability
 
 Public route checks and production browser verification passed with no page errors. The app has no cloud workflow functions producing runtime logs. No ongoing monitoring or log drains were configured.
+
+
+## v3 production release (September 7, 2026)
+
+- Deployment: `dpl_4tgh7aq339ZBgzbihZmRDqFpnu3N`, READY.
+- Production alias: https://mimic-aradhya.vercel.app
+- Extension: 3.0.0; original ID preserved.
+- New public routes: `/extension`, `/privacy`, `/account`, `/api/cloud/config`.
+- Neon project: `crimson-resonance-12197216`; production branch `br-little-union-a5m3d9rg`; isolated migration/concurrency validation branch `br-divine-fog-a5r4z562`.
+- Server database secret and public auth URL configured in Vercel. No Stripe secrets configured.
+- Live verification passed original workflows/workbench, two CSV rows with checked outcomes, failure stop, public download/source equality, sign-in page rendering, 401 for unauthenticated/forged device access, and 403 for foreign origin. No page errors.
+- Actual email delivery/account pairing and Stripe payment lifecycle remain unverified; billing is disabled. See RELEASE-V3.md.

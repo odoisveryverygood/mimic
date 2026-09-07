@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {verifyBatchPanel} from './batch-browser.js';
 import {verifyWorkbench} from './workbench-browser.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -73,6 +74,7 @@ test('real Chrome extension: web dashboard → record twice → learn → replay
     const sandbox=await restoredRpc('/repairs/test',{caseId:id(),name:'Sandbox boundary',phase:'after',click:'#probe',selector:'#result',expected:'isolated',html:`<button id="probe" onclick="try{top.location='http://127.0.0.1:4319/sandbox-probe-top'}catch{};window.open('http://127.0.0.1:4319/sandbox-probe-popup');fetch('http://127.0.0.1:4319/sandbox-probe-fetch').catch(()=>{});document.querySelector('#result').textContent='isolated'">Probe</button><p id="result"></p><img src="http://127.0.0.1:4319/sandbox-probe-image">`});
     const isolated=await until(async()=>{const s=await restoredRpc('/state',undefined,'GET');return !s.activeRun?s.runs.find(r=>r.id===sandbox.id):null});
     assert.equal(isolated.status,'passed',isolated.error);assert.equal(blockedTestRequests,0,'Sandbox must block network, popups, and top navigation');assert.equal(context.pages().length,pagesBefore,'Repair test tab is closed');
+    await verifyBatchPanel(context,restoredRpc,identity.extensionId,'http://127.0.0.1:4319');
 
   }finally{
     await context?.close();await new Promise(r=>server.close(r));fs.rmSync(profile,{recursive:true,force:true});

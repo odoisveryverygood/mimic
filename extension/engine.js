@@ -91,13 +91,13 @@ export class ChromeEngine {
     await this.evaluate(()=>document.querySelector('[data-mimic-toolbar]')?.remove()).catch(()=>{});
     await this.detach();await this.persist();return demo;
   }
-  async run(command,body){
+  async run(command,body,correlation={}){
     const input=runSchema.parse(body);const steps=materialize(command,input.values);
     if(this.locked||this.recording||this.activeRun)throw new Error('Finish the current session first.');
     this.locked=true;
     try{
       await this.open();
-      const run={id:id(),commandId:command.id,commandName:command.name,mode:input.mode,status:'running',startedAt:now(),steps:steps.map(s=>({id:s.id,label:s.label,type:s.type,status:'pending'})),outputs:[],currentStep:0};
+      const run={...correlation,id:id(),commandId:command.id,commandName:command.name,mode:input.mode,status:'running',startedAt:now(),steps:steps.map(s=>({id:s.id,label:s.label,type:s.type,status:'pending'})),outputs:[],currentStep:0};
       this.store.data.runs.unshift(run);this.activeRun={id:run.id,cancelled:false,resume:null};await this.persist();
       this.execute(run,steps).catch(()=>{});return run;
     }finally{this.locked=false;}

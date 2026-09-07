@@ -46,7 +46,7 @@ npm test
 vercel deploy --prod --scope vendraft
 ```
 
-The cloud build produces `dist-cloud/` and the production companion ZIP. The original local build produces `dist/`. The Vercel project is explicitly configured as a static Vite site: no Express server, browser profile, library data, or credentials are hosted.
+The cloud build produces `dist-cloud/` and the production companion ZIP. The original local build produces `dist/`. The Vercel project serves the Vite frontend and account/billing functions at `/api/cloud/*`. Database credentials stay in sensitive server environment variables. Browser profiles, library data, CSVs, and workflow execution stay in Chrome; no Express browser-automation server is hosted.
 
 The build consumes `extension/identity.json`, containing only a public extension identity and the allowed dashboard origin. No private signing key is saved. The manifest and service worker both restrict website access to the exact production dashboard origin. The test build temporarily adds a loopback test origin, then restores the production build; the production downloadable ZIP excludes that test permission.
 
@@ -59,3 +59,8 @@ References: [Chrome extension messaging](https://developer.chrome.com/docs/exten
 ## Version 2 workbench
 
 The companion is now version 2.0.0. Reload the existing installation after replacing its files. Scenarios, repair sources, and open loops are saved in dashboard site storage; workflow records remain in extension storage. Export both backups as described in [UPGRADE-V2.md](UPGRADE-V2.md). AI planning, patch generation, inbox connections, and repository automation are not connected.
+
+
+## Version 3 Chrome product
+
+The companion is version 3.0.0 with a native side panel, CSV batches, result checks, recovery, and account controls. Click its toolbar icon after reloading. Read [RELEASE-V3.md](RELEASE-V3.md) for the architecture and launch boundaries, and [store/LISTING.md](store/LISTING.md) for the prepared store materials. Pro checkout remains disabled until provider setup and billing tests are complete.

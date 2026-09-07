@@ -1,6 +1,8 @@
 # Mimic
 
-A personal workbench for browser workflows, business scenarios, reproducible repairs, and unfinished admin.
+A Chrome side panel that turns demonstrated browser tasks into reusable workflows and verified spreadsheet batches. The web dashboard also includes business scenarios, reproducible repairs, and unfinished admin.
+
+**Version 3:** Open [Mimic for Chrome](https://mimic-aradhya.vercel.app/extension). See [RELEASE-V3.md](RELEASE-V3.md) for the extension, Free/Pro limits, account architecture, verification, and remaining billing activation steps. Pro payments are disabled pending provider setup.
 
 **Version 2:** See [UPGRADE-V2.md](UPGRADE-V2.md) for the four workspaces, tested capabilities, storage, and remaining integrations.
 
@@ -54,7 +56,7 @@ With one demonstration, fill/select fields become candidate inputs. With two or 
 
 ## Data and browser behavior
 
-All application data is in `.mimic/` beside this README:
+For the original local edition, application data is in `.mimic/` beside this README:
 
 - `library.json`: commands, captured demonstrations, and run history, written atomically with owner-only file permissions.
 - `browser-profile/`: the dedicated browser's local profile, including site login sessions. This is separate from your ordinary Chrome profile.

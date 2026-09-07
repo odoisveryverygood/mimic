@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {recoverBatches} from './batch.js';
 import {starter,id,now,commandSchema,learn} from '../server/model.js';
 
 export async function createLibrary(storage,base) {
@@ -6,6 +7,7 @@ export async function createLibrary(storage,base) {
   const data=stored.library||{version:1,commands:[starter(base)],demonstrations:[],runs:[]};
   if(data.version!==1||!Array.isArray(data.commands)||!Array.isArray(data.demonstrations)||!Array.isArray(data.runs))throw new Error('The saved library is not readable. It has not been overwritten.');
   for(const run of data.runs)if(['running','paused','queued'].includes(run.status)){run.status='interrupted';run.finishedAt=now();run.error='Chrome restarted or the extension was reloaded. Start a fresh run.';}
+  recoverBatches(data);
   if(data.activeRecording){
     const rec=data.activeRecording;
     data.demonstrations.unshift({...rec,status:'saved',finishedAt:now(),warnings:[...rec.warnings,'Chrome restarted. The actions captured so far were recovered.']});
