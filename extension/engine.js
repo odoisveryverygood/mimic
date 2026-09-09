@@ -15,10 +15,10 @@ export class ChromeEngine {
   status(){return {recording:this.recording,activeRun:this.activeRun?this.store.data.runs.find(r=>r.id===this.activeRun.id):null,browserOpen:this.tabId!==null,busy:this.locked};}
   async send(method,params={}){if(this.tabId===null)throw new Error('The workflow tab is no longer connected.');return chrome.debugger.sendCommand({tabId:this.tabId,...(method==='Runtime.evaluate'&&this.repairSessionId?{sessionId:this.repairSessionId}:{})},method,params);}
   async evaluate(fn,...args){const result=await this.send('Runtime.evaluate',{expression:`(${fn.toString()})(${args.map(v=>JSON.stringify(v)).join(',')})`,awaitPromise:true,returnByValue:true,...(this.repairContextId?{contextId:this.repairContextId,timeout:2000}:{})});if(result.exceptionDetails)throw new Error('The page did not accept this operation.');return result.result?.value;}
-  async open(){
+  async open(existingTabId){
     await this.detach();
-    const tab=await chrome.tabs.create({url:'about:blank',active:true});this.tabId=tab.id;
-    try{await chrome.debugger.attach({tabId:tab.id},'1.3');await this.send('Page.enable');await this.send('Runtime.enable');const tree=await this.send('Page.getFrameTree');this.mainFrameId=tree.frameTree.frame.id;this.contexts.clear();}
+    const tab=existingTabId===undefined?await chrome.tabs.create({url:'about:blank',active:true}):await chrome.tabs.get(existingTabId);this.tabId=tab.id;
+    try{await chrome.debugger.attach({tabId:tab.id},'1.3');this.contexts.clear();await this.send('Page.enable');await this.send('Runtime.enable');const tree=await this.send('Page.getFrameTree');this.mainFrameId=tree.frameTree.frame.id;}
     catch(error){this.tabId=null;throw new Error(`Chrome could not connect this tab. ${String(error.message).split('\n')[0]}`);}
   }
   async detach(){const tabId=this.tabId;this.tabId=null;if(tabId!==null)await chrome.debugger.detach({tabId}).catch(()=>{});}
@@ -53,21 +53,27 @@ export class ChromeEngine {
     if(method==='Page.frameAttached'&&this.recording&&!this.recording.warnings.some(w=>w.startsWith('Embedded'))){this.recording.warnings.push('Embedded frames are present. Interactions inside them are not recorded.');this.persist().catch(()=>{});}
     if(method==='Page.domContentEventFired'&&this.recording)this.evaluate(paused=>window.__mimicSetPaused?.(paused),this.recording.status==='paused').catch(()=>{});
   }
-  async startRecording(body){
+  async startRecording(body,existingTabId){
     const input=recordSchema.parse(body);
     if(this.locked||this.recording||this.activeRun)throw new Error('Finish the current session first.');
     if(input.commandId&&!this.store.data.commands.some(c=>c.id===input.commandId))throw new Error('Command not found.');
     this.locked=true;
     try{
-      await this.open();
+      await this.open(existingTabId);
       this.recording={id:id(),name:input.name,url:input.url,commandId:input.commandId,startedAt:now(),status:'recording',steps:[],warnings:[]};
       await this.add({type:'navigate',label:`Open ${new URL(input.url).hostname}`,url:input.url,checkpoint:false,secret:false});
       await this.send('Runtime.addBinding',{name:'__mimicBridge'});
       const source=`(()=>{if(window.top!==window)return;window.__mimicEvent=event=>window.__mimicBridge(JSON.stringify({event}));window.__mimicControl=control=>window.__mimicBridge(JSON.stringify({control}));(${installRecorder.toString()})();})()`;
       await this.send('Page.addScriptToEvaluateOnNewDocument',{source});
-      await this.navigate(input.url);return this.recording;
+      if(existingTabId===undefined)await this.navigate(input.url);else {const current=await this.evaluate(()=>location.href);if(current!==input.url)throw Error('The tab changed. Select it again before recording.');await this.send('Runtime.evaluate',{expression:source});}return this.recording;
     }catch(error){if(this.recording)await this.finishRecording('Starting the page did not complete.').catch(()=>{});await this.detach();throw error;}finally{this.locked=false;}
   }
+  async pickResult(){
+    if(!this.recording||this.recording.status!=='recording')throw Error('Resume the recording before choosing a result.');
+    if(!await this.evaluate(()=>window.__mimicPickResult?.()))throw Error('This page is not ready. Finish loading it and try again.');
+    await chrome.tabs.update(this.tabId,{active:true});return {ok:true};
+  }
+  async focusTab(){if(this.tabId===null)throw Error('No active task tab.');await chrome.tabs.update(this.tabId,{active:true});return {ok:true};}
   async pauseRecording(){
     if(!this.recording)throw new Error('No active demonstration.');
     if(this.recording.status==='recording'){
@@ -88,7 +94,7 @@ export class ChromeEngine {
     const rec=this.recording;rec.status='saving';if(warning)rec.warnings.push(warning);
     const demo={...rec,status:'saved',finishedAt:now(),durationMs:Date.now()-new Date(rec.startedAt).getTime(),steps:normalizeSteps(rec.steps)};
     this.store.data.demonstrations.unshift(demo);this.recording=null;
-    await this.evaluate(()=>document.querySelector('[data-mimic-toolbar]')?.remove()).catch(()=>{});
+    await this.evaluate(()=>window.__mimicCleanup?.()).catch(()=>{});
     await this.detach();await this.persist();return demo;
   }
   async run(command,body,correlation={}){

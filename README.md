@@ -2,6 +2,8 @@
 
 A Chrome side panel that turns demonstrated browser tasks into reusable workflows and verified spreadsheet batches. The web dashboard also includes business scenarios, reproducible repairs, and unfinished admin.
 
+**Version 4:** Open [Mimic](https://mimic-aradhya.vercel.app) and click **See it actually work**. Teach by doing, pick success on the page, then run once or use a list. See [RELEASE-V4.md](RELEASE-V4.md) for the redesign and verification. The original four workspaces remain in the [advanced studio](https://mimic-aradhya.vercel.app/studio).
+
 **Version 3:** Open [Mimic for Chrome](https://mimic-aradhya.vercel.app/extension). See [RELEASE-V3.md](RELEASE-V3.md) for the extension, Free/Pro limits, account architecture, verification, and remaining billing activation steps. Pro payments are disabled pending provider setup.
 
 **Version 2:** See [UPGRADE-V2.md](UPGRADE-V2.md) for the four workspaces, tested capabilities, storage, and remaining integrations.

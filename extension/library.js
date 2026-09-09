@@ -27,7 +27,7 @@ export async function libraryRequest(store,engine,path,method,body={}) {
     if(!command)throw new Error('Command not found.');
     if(match[2]==='export'&&method==='GET')return {format:'mimic-command',version:1,command:commandSchema.parse({name:command.name,description:command.description,steps:command.steps,parameters:command.parameters})};
     if(match[2]==='duplicate'&&method==='POST'){
-      const copy={...structuredClone(command),id:id(),name:`${command.name.slice(0,90)} (copy)`,createdAt:now(),updatedAt:now(),demonstrationIds:[]};data.commands.unshift(copy);await save();return copy;
+      const copy={...structuredClone(command),id:id(),name:`${command.name.slice(0,90)} (copy)`,createdAt:now(),updatedAt:now(),demonstrationIds:[],sample:false};data.commands.unshift(copy);await save();return copy;
     }
     if(!match[2]&&['PUT','DELETE'].includes(method)){
       if(engine.recording?.commandId===command.id||data.runs.find(r=>r.id===engine.activeRun?.id)?.commandId===command.id)throw new Error('Finish this command’s current session before editing.');

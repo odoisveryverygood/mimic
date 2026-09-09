@@ -12,9 +12,9 @@ Language: English
 
 Turn a browser task you repeat into a reusable workflow.
 
-Mimic lives in Chrome's side panel. Record the steps in a dedicated tab, review the inputs and checkpoints, and run them again with new values. Bring a CSV from Excel or Google Sheets to work through a list one row at a time.
+Mimic lives in Chrome's side panel. Record the steps in your current tab or a new tab, review the inputs and checkpoints, and run them again with new values. Bring a CSV from Excel or Google Sheets to work through a list one row at a time.
 
-Define what success looks like with a final text check. Mimic marks rows verified only after observing the expected result. If a row fails or Chrome is interrupted, the batch stops for review. You can inspect the destination, mark a row manually confirmed or skipped, and continue the pending rows. Completed rows are never automatically replayed.
+Pick a visible success message on the page. Mimic turns it into a final text check and substitutes unambiguous recorded inputs when you use new values. Mimic marks rows verified only after observing the expected result. If a row fails or Chrome is interrupted, the batch stops for review. You can inspect the destination, mark a row manually confirmed or skipped, and continue the pending rows. Completed rows are never automatically replayed.
 
 Free includes three custom workflows, a practice workflow, and batches of up to three rows. Pro is planned at $15/month for 100 workflows, up to 100 rows per batch, and 1,000 batch rows per calendar month. Pro checkout is currently unavailable.
 
@@ -32,9 +32,9 @@ Capture, replay, and verify user-demonstrated browser workflows, including sprea
 
 ## Permission justifications
 
-- debugger: Record interactions and replay fixed supported browser operations in a dedicated user-requested tab. Includes isolated outcome/regression testing through the existing dashboard. This permission is powerful; Chrome's indicator remains visible.
+- debugger: Record interactions and replay fixed supported browser operations in the current tab explicitly selected by the user or a dedicated user-requested tab. Includes isolated outcome/regression testing through the existing dashboard. This permission is powerful; Chrome's indicator remains visible.
 - storage: Save workflows, demonstrations, batch inputs/results, interrupted-session recovery, and the local account connection token.
-- tabs: Create and identify the dedicated workflow tab, detect closure and popup recording limitations, and open the associated website/account page. No general history collection.
+- tabs: Read the title and URL of the active tab only when the user opens the recording flow; create or identify the selected workflow tab, detect closure and popup recording limitations, and open the associated website/account page. No general history collection.
 - sidePanel: Display the extension's primary interface beside the user's current page.
 - host permission for https://mimic-aradhya.vercel.app/*: Authenticated billing and usage requests to Mimic's own backend. No blanket host permission is requested.
 - externally_connectable: Only the exact Mimic dashboard origin can request companion operations. Development loopback origins are absent from the production package.

@@ -44,3 +44,17 @@ test('damaged libraries are not overwritten',()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'mimic-corrupt-'));const file=path.join(dir,'library.json');
   try{fs.writeFileSync(file,'broken');assert.throws(()=>createStore(dir,'http://localhost'),/left untouched/);assert.equal(fs.readFileSync(file,'utf8'),'broken');}finally{fs.rmSync(dir,{recursive:true,force:true})}
 });
+
+test('visual success text follows changed inputs and does not replace substrings or ambiguous values',()=>{
+ const d=demo('My idea');d.steps.push({id:id(),type:'assert',label:'Check result',selector:'#result',value:'Saved “My idea” to Research.'});
+ const c=learn([d],'Save idea');assert.equal(c.steps.at(-1).valueTemplate,'Saved “{{reading_title}}” to {{shelf}}.');
+ assert.equal(materialize(c,{reading_title:'New idea $& {{literal}}',shelf:'Ideas'}).at(-1).value,'Saved “New idea $& {{literal}}” to Ideas.');
+ assert.equal(c.steps.at(-1).value,'Saved “My idea” to Research.');
+ const substring=demo('Cat');substring.steps.push({id:id(),type:'assert',label:'Check',selector:'#result',value:'Category saved'});
+ assert.equal(learn([substring],'Cat').steps.at(-1).valueTemplate,undefined);
+ const ambiguous=demo('Research');ambiguous.steps.push({id:id(),type:'assert',label:'Check',selector:'#result',value:'Research saved'});
+ assert.equal(learn([ambiguous],'Ambiguous').steps.at(-1).valueTemplate,undefined);
+ assert.equal(commandSchema.safeParse({...c,steps:c.steps.map(s=>s.type==='assert'?{...s,valueTemplate:'{{missing}}'}:s)}).success,false);
+ const literal={...c,steps:c.steps.map(s=>s.type==='assert'?{...s,value:'literal {{thing}}',valueTemplate:undefined}:s)};
+ assert.equal(materialize(literal,{}).at(-1).value,'literal {{thing}}');
+});

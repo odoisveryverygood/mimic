@@ -14,13 +14,14 @@ export const stepSchema = z.object({
   id: z.string().max(80), type: z.enum(['navigate', 'click', 'fill', 'select', 'check', 'press', 'extract', 'manual', 'assert']),
   label: z.string().min(1).max(300), selector: z.string().max(3000).optional(),
   alternatives: z.array(z.string().max(3000)).max(5).optional(),
-  value: text.optional(), url: url.optional(), origin: z.string().max(500).optional(),
+  value: text.optional(), valueTemplate: text.optional(), url: url.optional(), origin: z.string().max(500).optional(),
   parameter: z.string().regex(/^[a-z][a-z0-9_]{0,49}$/).optional(),
   checkpoint: z.boolean().default(false), secret: z.boolean().default(false),
 }).strict().superRefine((s, ctx) => {
   if (s.type === 'navigate' && !s.url) ctx.addIssue({ code: 'custom', message: 'Navigation needs a URL.' });
   if (!['navigate', 'manual'].includes(s.type) && !s.selector) ctx.addIssue({ code: 'custom', message: 'This step needs an element selector.' });
   if (s.type === 'assert' && !s.value?.trim()) ctx.addIssue({ code:'custom', message:'Outcome checks need expected text.' });
+  if (s.valueTemplate && s.type !== 'assert') ctx.addIssue({code:'custom',message:'Only outcome checks can use text templates.'});
   if (s.type === 'press' && !['Enter', 'Tab', 'Escape', 'ArrowDown', 'ArrowUp'].includes(s.value || '')) ctx.addIssue({ code: 'custom', message: 'Unsupported key.' });
   if (s.secret && s.value) ctx.addIssue({ code: 'custom', message: 'Private fields cannot store values.' });
   if (s.secret && s.type !== 'manual') ctx.addIssue({ code: 'custom', message: 'Private fields must be manual steps.' });
@@ -36,6 +37,7 @@ export const commandSchema = z.object({
   if (keys.size !== c.parameters.length) ctx.addIssue({ code: 'custom', message: 'Input names must be unique.' });
   if (new Set(c.steps.map(s => s.id)).size !== c.steps.length) ctx.addIssue({ code: 'custom', message: 'Step IDs must be unique.' });
   if (c.steps.some(s => s.parameter && !keys.has(s.parameter))) ctx.addIssue({ code: 'custom', message: 'A step refers to a missing input.' });
+  for (const s of c.steps) for (const m of (s.valueTemplate || '').matchAll(/\{\{([^{}]+)\}\}/g)) if (!keys.has(m[1])) ctx.addIssue({code:'custom',message:'An outcome check refers to a missing input.'});
   if (c.steps[0]?.type !== 'navigate') ctx.addIssue({ code: 'custom', message: 'The first step must open a web page.' });
 });
 export const recordSchema = z.object({name: z.string().trim().min(1).max(100), url, commandId: z.string().uuid().optional()}).strict();
@@ -74,6 +76,17 @@ export function learn(demonstrations, name) {
       parameters.push({ key, label: step.type === 'navigate' ? 'Page URL' : step.label.replace(/^(Fill|Select|Enter)\s+/i, ''), default: values.at(-1), examples: values.slice(0,20) });
     }
   }
+  // Substitute complete, unambiguous input values in visually selected outcomes.
+  // Keep the original text for review; templates are explicit so literal braces stay literal.
+  for (const step of steps.filter(s=>s.type==='assert')) {
+    const candidates=parameters.map(p=>({key:p.key,value:steps.find(s=>s.parameter===p.key)?.value})).filter(p=>p.value?.length>=3);
+    const unique=candidates.filter(p=>candidates.filter(q=>q.value===p.value).length===1).sort((a,b)=>b.value.length-a.value.length);
+    if (!unique.length) continue;
+    const escaped=unique.map(p=>p.value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+    const pattern=new RegExp(`(?<![\\p{L}\\p{N}_])(${escaped.join('|')})(?![\\p{L}\\p{N}_])`,'gu');
+    const template=step.value.replace(pattern,value=>`{{${unique.find(p=>p.value===value).key}}}`);
+    if(template!==step.value)step.valueTemplate=template;
+  }
   return commandSchema.parse({ name, description: `Learned from ${samples.length} demonstration${samples.length === 1 ? '' : 's'}.`, steps, parameters });
 }
 export function materialize(command, values) {
@@ -92,7 +105,17 @@ export function materialize(command, values) {
     if (s.type === 'check' && !['true','false'].includes(s.value)) throw new Error(`Use true or false for ${p.label}.`);
   }
   for (const s of result) if (s.origin && origins.has(s.origin)) s.origin = origins.get(s.origin);
+  for (const s of result) if(s.valueTemplate) {
+    s.value=s.valueTemplate.replace(/\{\{([^{}]+)\}\}/g,(_,key)=>{const p=command.parameters.find(p=>p.key===key);if(!p)throw Error('The outcome check uses an unknown input.');return values[key]??p.default;});
+    if(!s.value.trim())throw Error('The outcome check needs nonempty text.');
+  }
   return result;
+}
+
+// A separate built-in demo leaves every existing saved command untouched.
+export function quickstart(base) {
+  const c=starter(base);
+  return {...c,id:'7202caba-746c-4ed3-9965-b5f2b1cc1460',name:'Save your first reading',description:'Watch Mimic fill a form, save it, and check the result.',steps:c.steps.map(s=>s.type==='extract'?{...s,type:'assert',label:'Check the saved reading',value:'Saved',valueTemplate:'Saved “{{title}}” to {{shelf}}.'}:{...s,checkpoint:false})};
 }
 
 export function starter(base) {

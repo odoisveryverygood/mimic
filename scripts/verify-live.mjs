@@ -1,4 +1,5 @@
 import {chromium} from 'playwright';
+import {verifyExperience} from '../tests/experience-browser.js';
 import {verifyWorkbench} from '../tests/workbench-browser.js';
 import {verifyBatchPanel} from '../tests/batch-browser.js';
 import fs from 'node:fs';
@@ -11,8 +12,9 @@ import {unzipSync,strFromU8} from 'fflate';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const identity=JSON.parse(fs.readFileSync(path.join(root,'extension/identity.json'),'utf8'));
 const base=identity.dashboardOrigin;
-for(const route of ['/','/practice','/extension','/privacy','/account','/downloads/mimic-browser-companion.zip','/api/cloud/config']){
+for(const route of ['/','/studio','/practice','/extension','/privacy','/account','/downloads/mimic-browser-companion.zip','/api/cloud/config']){
   const response=await fetch(`${base}${route}`);assert.equal(response.status,200,route);
+  if(route==='/')assert.match(await response.text(),/Your personal repeat button/,'Root serves the focused task interface');
   if(route.endsWith('.zip')){
     const zip=unzipSync(new Uint8Array(await response.arrayBuffer()));
     const manifest=JSON.parse(strFromU8(zip['mimic-browser-companion/manifest.json']));
@@ -26,7 +28,7 @@ const extension=path.join(root,'extension/build');
 const context=await chromium.launchPersistentContext(profile,{channel:'chromium',headless:true,viewport:{width:1440,height:1000},args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`]});
 try{
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(base);await page.getByText('Connected to your Chrome companion',{exact:true}).waitFor({timeout:30000});
+  await page.goto(base+'/studio');await page.getByText('Connected to your Chrome companion',{exact:true}).waitFor({timeout:30000});
   await page.getByRole('button',{name:'My commands',exact:true}).click();
   await page.getByRole('button',{name:'Try command',exact:true}).click();
   await page.getByRole('textbox',{name:'Reading title',exact:true}).fill('Mimic live deployment verification');
@@ -49,5 +51,6 @@ try{
   const requests=await page.evaluate(()=>[...new Set(performance.getEntriesByType('resource').map(r=>r.name))]);
   assert.ok(!requests.some(url=>url.includes('127.0.0.1')||url.includes('localhost')||new URL(url).pathname.startsWith('/api/')));
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({url:base,workbench,publicRoutes:'HTTP 200',extensionDownload:'matches production source; only production origin permitted',browserRun:'6 of 6 steps passed',batches:'2 verified rows; failed outcome leaves next row pending',account:'sign-in page renders; unauthenticated and forged tokens rejected',billing:'disabled pending provider setup',result:'Saved “Mimic live deployment verification” to Research.',localServerRequests:0,pageErrors:0},null,2));
+  const experience=await verifyExperience(context,rpc,identity.extensionId,base);
+  console.log(JSON.stringify({url:base,experience,workbench,publicRoutes:'HTTP 200',extensionDownload:'matches production source; only production origin permitted',browserRun:'6 of 6 steps passed',batches:'2 verified rows; failed outcome leaves next row pending',account:'sign-in page renders; unauthenticated and forged tokens rejected',billing:'disabled pending provider setup',result:'Saved “Mimic live deployment verification” to Research.',localServerRequests:0,pageErrors:0},null,2));
 }finally{await context.close();fs.rmSync(profile,{recursive:true,force:true});}

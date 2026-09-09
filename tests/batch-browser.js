@@ -8,13 +8,14 @@ export async function verifyBatchPanel(context,rpc,extensionId,base){
  const page=await context.newPage();await page.setViewportSize({width:420,height:920});await page.goto(`chrome-extension://${extensionId}/panel.html`);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.getByRole('button',{name:/Save a reading/}).click();
+ await page.getByRole('button',{name:'Run a list',exact:true}).click();
  await page.getByLabel('Upload batch CSV').setInputFiles({name:'readings.csv',mimeType:'text/csv',buffer:Buffer.from('title,link,shelf\nFirst batch row,https://example.com/one,Ideas\nSecond batch row,https://example.com/two,Research')});
  await page.getByRole('button',{name:'Review batch',exact:true}).click();await page.getByRole('button',{name:'Start batch',exact:true}).click();
  const done=await wait(async()=>{const s=await rpc('/state',undefined,'GET');return s.batches[0]?.status==='completed'?s.batches[0]:null;});
  assert.deepEqual(done.rows.map(r=>r.status),['verified','verified']);assert.match(done.rows[0].output,/First batch row/);assert.match(done.rows[1].output,/Second batch row/);
  assert.equal(new Set(done.rows.map(r=>r.runId)).size,2);
- await page.getByText('COMPLETED',{exact:true}).waitFor();await page.locator('.row-result summary').first().click();await page.screenshot({path:'screenshots/extension-batch-results.png',fullPage:true});
- await page.getByRole('button',{name:'Workflows',exact:true}).click();await page.screenshot({path:'screenshots/extension-side-panel.png',fullPage:true});
+ await page.getByText('Completed',{exact:true}).waitFor();await page.locator('.row-result summary').first().click();await page.screenshot({path:'screenshots/extension-batch-results.png',fullPage:true});
+ await page.getByRole('button',{name:'My tasks',exact:true}).click();await page.screenshot({path:'screenshots/extension-side-panel.png',fullPage:true});
  // A failed check must stop before the second row, and a forged client plan must not enable a bigger batch.
  const badSteps=steps.map(s=>s.type==='assert'?{...s,value:'this outcome does not exist'}:s);
  await rpc(`/commands/${sample.id}`,{name:sample.name,description:sample.description,parameters:sample.parameters,steps:badSteps},'PUT');

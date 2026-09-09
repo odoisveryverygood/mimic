@@ -55,3 +55,17 @@ Public route checks and production browser verification passed with no page erro
 - Server database secret and public auth URL configured in Vercel. No Stripe secrets configured.
 - Live verification passed original workflows/workbench, two CSV rows with checked outcomes, failure stop, public download/source equality, sign-in page rendering, 401 for unauthenticated/forged device access, and 403 for foreign origin. No page errors.
 - Actual email delivery/account pairing and Stripe payment lifecycle remain unverified; billing is disabled. See RELEASE-V3.md.
+
+## Version 4 — September 8, 2026
+
+- Production alias: https://mimic-aradhya.vercel.app
+- Deployment: `dpl_28QM2jzqM8fwKT13CwMjzEfbV9vC`
+- Immutable URL: https://mimic-aradhya-oppcgklwg-vendraft.vercel.app
+- Vercel status: READY.
+- Version 4.0.0 was reloaded in the existing Chrome installation. Extension ID, requested permissions, and installed folder are unchanged.
+- Pre-update `mimic-library.json` and post-update `mimic-backup.json` exports were compared as complete JSON objects and matched exactly. All existing commands, demonstrations, and runs were preserved.
+- The new one-click example was then run in the user's actual Chrome profile: 6/6 steps completed, with the observed result `Saved “Less clicking. More living.” to Ideas.`
+- Local release gates: TypeScript passed, 20 tests passed, cloud build passed. The separate disconnected-visitor check passed with an actionable connection message and no mobile overflow or browser errors.
+- The root now physically serves the new task interface, because Vercel's generated index takes precedence over a custom root rewrite. The original application shell is retained as `studio.html`, serving `/studio` and `/account`. This keeps the advanced workspaces and account page available.
+- The site and extension remain independent of localhost. Chrome must stay open while it executes a workflow. Provider setup and store publication boundaries remain as recorded in RELEASE-V3.md.
+- Post-deploy verification passed against the production alias: new root interface; all public routes; production extension archive identity/source match; one-click run; three verified example rows; visual teaching with changed-input replay; current-tab capture, rejection boundaries, cleanup and rerecording; all four retained studio workspaces; account rendering and unauthorized-token rejection. No page errors or localhost requests were observed.

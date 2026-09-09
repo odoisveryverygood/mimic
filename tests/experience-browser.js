@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+const wait=async(fn,timeout=35000)=>{const start=Date.now();while(Date.now()-start<timeout){const v=await fn();if(v)return v;await new Promise(r=>setTimeout(r,100));}throw Error('New experience timed out');};
+export async function verifyExperience(context,rpc,extensionId,base){
+ const web=await context.newPage(),errors=[];web.on('pageerror',e=>errors.push(e.message));await web.setViewportSize({width:1440,height:1020});await web.goto(base+'/extension');
+ await web.getByRole('heading',{name:'Your clicks. On repeat.'}).waitFor();
+ await web.screenshot({path:'screenshots/mimic-v4-desktop.png',fullPage:true});
+ await web.getByRole('button',{name:/See it actually work/}).click();
+ const first=await wait(async()=>{const s=await rpc('/state',undefined,'GET');return !s.activeRun&&s.runs[0]?.commandName==='Save your first reading'?s.runs[0]:null;});
+ assert.equal(first.status,'passed',first.error);assert.equal(first.outputs[0].text,'Saved “Less clicking. More living.” to Ideas.');
+ await web.getByRole('heading',{name:'That’s one less thing.'}).waitFor();
+ await web.screenshot({path:'screenshots/mimic-v4-receipt.png',fullPage:true});
+ await web.getByRole('button',{name:'Dismiss result'}).click();await web.getByRole('button',{name:/Save your first reading.*editable inputs/}).click();
+ assert.equal(await web.getByLabel('Page element (CSS selector)').isVisible(),false,'Technical setup is collapsed');
+ await web.getByRole('button',{name:'Run a list',exact:true}).click();await web.getByRole('button',{name:'Use 3 example rows',exact:true}).click();await web.getByRole('button',{name:'Review batch',exact:true}).click();await web.getByRole('button',{name:'Start batch',exact:true}).click();
+ const batch=await wait(async()=>{const s=await rpc('/state',undefined,'GET');return !s.batchActive&&s.batches[0]?.status==='completed'?s.batches[0]:null;});assert.deepEqual(batch.rows.map(r=>r.status),['verified','verified','verified']);assert.match(batch.rows[2].output,/Class reading.*School/);
+ await web.getByText('Completed',{exact:true}).waitFor();await web.locator('.row-result summary').first().click();await web.screenshot({path:'screenshots/mimic-v4-list.png',fullPage:true});
+ const panel=await context.newPage();panel.on('pageerror',e=>errors.push(e.message));await panel.setViewportSize({width:400,height:890});await panel.goto(`chrome-extension://${extensionId}/panel.html`);
+ await panel.getByRole('button',{name:'Teach a task',exact:true}).click();await panel.getByLabel('Give this task a name').fill('Save an idea visually');await panel.getByLabel('Website to open').fill(base+'/practice');await panel.getByRole('button',{name:'Start recording',exact:true}).click();
+ const target=await wait(async()=>{const pages=context.pages().filter(p=>p.url()===base+'/practice');for(const p of pages)if(await p.locator('[data-mimic-toolbar-host]').count())return p;});
+ await target.locator('#reading-title').fill('First visual idea');await target.locator('#reading-url').fill('https://example.com/visual');await target.locator('#shelf').focus();await target.locator('#shelf').selectOption('Ideas');assert.equal(await target.locator('#shelf').inputValue(),'Ideas');await target.locator('#save-reading').click();
+ await panel.getByRole('button',{name:'Pick success',exact:true}).click();await target.locator('#confirmation').click();
+ await wait(async()=>{const s=await rpc('/state',undefined,'GET');return s.recording?.steps.at(-1)?.type==='assert';});
+ await panel.getByRole('button',{name:'Finish',exact:true}).click();await panel.getByRole('heading',{name:'You taught it.'}).waitFor();await panel.getByRole('button',{name:'Save task',exact:true}).click();await panel.getByRole('heading',{name:'Save an idea visually',exact:true}).waitFor();
+ const c=(await rpc('/state',undefined,'GET')).commands.find(c=>c.name==='Save an idea visually');assert.equal(c.steps.at(-1).type,'assert');assert.equal(c.steps.at(-1).valueTemplate,'Saved “{{reading_title}}” to {{shelf}}.');assert.equal(c.steps.filter(s=>s.type==='click').length,1,'Picking a result must not become a click action');
+ await panel.getByLabel('Reading title',{exact:true}).fill('An entirely different idea');await panel.getByRole('button',{name:'Run task',exact:true}).click();await panel.getByRole('button',{name:'Continue this step',exact:true}).waitFor();await panel.getByRole('button',{name:'Continue this step',exact:true}).click();
+ const replay=await wait(async()=>{const s=await rpc('/state',undefined,'GET');return !s.activeRun&&s.runs[0]?.commandId===c.id?s.runs[0]:null;});assert.equal(replay.status,'passed',replay.error);assert.equal(replay.outputs[0].text,'Saved “An entirely different idea” to Ideas.',JSON.stringify({parameters:c.parameters,steps:c.steps,run:replay}));
+ await panel.getByRole('heading',{name:'That’s one less thing.'}).waitFor();await panel.screenshot({path:'screenshots/mimic-v4-panel-result.png',fullPage:true});await panel.getByRole('button',{name:'Dismiss result'}).click();await panel.getByRole('navigation',{name:'Main navigation'}).getByRole('button',{name:'My tasks',exact:true}).click();await panel.screenshot({path:'screenshots/mimic-v4-panel.png',fullPage:true});assert.equal(await panel.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+ // Existing-tab capture preserves the page; stale selection and external callers are rejected.
+ const internalRpc=(path,body,method='POST')=>panel.evaluate(({path,body,method})=>new Promise((resolve,reject)=>chrome.runtime.sendMessage({channel:'mimic-v1',path,body,method},r=>r?.ok?resolve(r.data):reject(Error(r?.error||'No response')))),{path,body,method});
+ await assert.rejects(()=>rpc('/recordings/current',{name:'Forbidden external attach',tabId:1}),/side panel/);
+ const live=await context.newPage();await live.goto(base+'/practice');await live.locator('#reading-title').fill('Must survive attaching');
+ const tabId=await panel.evaluate(async url=>{const tabs=await chrome.tabs.query({});return tabs.find(t=>t.url===url&&t.active)?.id;},base+'/practice');assert.ok(tabId);
+ await assert.rejects(()=>internalRpc('/recordings/current',{name:'Stale selection',tabId:tabId+9999}),/active tab changed/);
+ const pagesBefore=context.pages().length;
+ await internalRpc('/recordings/current',{name:'Current tab recording',tabId});assert.equal(context.pages().length,pagesBefore);assert.equal(await live.locator('#reading-title').inputValue(),'Must survive attaching');
+ await live.locator('#reading-title').fill('Captured without a reload');await live.locator('#reading-url').fill('https://example.com/current');await live.locator('#save-reading').click();await internalRpc('/recordings/pick',{});await live.locator('#confirmation').click();
+ const currentDemo=await internalRpc('/recordings/stop',{});assert.ok(currentDemo.steps.some(s=>s.value==='Captured without a reload'));assert.equal(currentDemo.steps.at(-1).type,'assert');assert.equal(await live.locator('[data-mimic-toolbar]').count(),0);
+ await panel.evaluate(async id=>chrome.tabs.update(id,{active:true}),tabId);await internalRpc('/recordings/current',{name:'Record same page again',tabId});await live.locator('#reading-title').fill('Second capture on same tab');await live.locator('#reading-url').click();const second=await internalRpc('/recordings/stop',{});assert.ok(second.steps.some(s=>s.value==='Second capture on same tab'));assert.equal(await live.locator('[data-mimic-toolbar]').count(),0);
+ await live.reload();assert.equal(await live.locator('[data-mimic-toolbar]').count(),0,'Stopping must remove future recorder injection');
+ await web.setViewportSize({width:390,height:844});await web.getByRole('navigation',{name:'Main navigation'}).getByRole('button',{name:'My tasks',exact:true}).click();assert.equal(await web.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await web.screenshot({path:'screenshots/mimic-v4-mobile.png',fullPage:true});
+ assert.deepEqual(errors,[]);await web.close();await panel.close();await live.close();
+ return {quickstart:'one-click run verified',lists:'three different rows verified',teaching:'visual picker → save → changed-input replay',currentTab:'no reload; stale and external callers rejected; repeated recording works',pageErrors:0};
+}
