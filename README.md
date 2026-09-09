@@ -1,6 +1,10 @@
 # Mimic
 
-A Chrome side panel that turns demonstrated browser tasks into reusable workflows and verified spreadsheet batches. The web dashboard also includes business scenarios, reproducible repairs, and unfinished admin.
+**Client updates, on repeat.** Show Mimic one client-portal update, repeat it from a spreadsheet, and check the result of each row. Our initial customer hypothesis is agency operators doing recurring portal updates.
+
+Read the [live workflow guide](https://mimic-aradhya.vercel.app/docs), [product brief](public/docs/product-brief.md), [workflow playbook](public/docs/workflow-playbook.md), and [beta validation plan](public/docs/beta-validation-plan.md). Sample CSVs and a blank beta scorecard are in [public/docs](public/docs). These recipes require a recording on the customer's site; demand, pricing, and external portal compatibility remain unvalidated.
+
+The Chrome side panel provides recording, replay, editable inputs, CSV batches, and saved outcome checks. The older business, repair, and admin workspaces remain available in the advanced studio.
 
 **Version 4:** Open [Mimic](https://mimic-aradhya.vercel.app) and click **See it actually work**. Teach by doing, pick success on the page, then run once or use a list. See [RELEASE-V4.md](RELEASE-V4.md) for the redesign and verification. The original four workspaces remain in the [advanced studio](https://mimic-aradhya.vercel.app/studio).
 

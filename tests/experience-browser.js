@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 const wait=async(fn,timeout=35000)=>{const start=Date.now();while(Date.now()-start<timeout){const v=await fn();if(v)return v;await new Promise(r=>setTimeout(r,100));}throw Error('New experience timed out');};
 export async function verifyExperience(context,rpc,extensionId,base){
  const web=await context.newPage(),errors=[];web.on('pageerror',e=>errors.push(e.message));await web.setViewportSize({width:1440,height:1020});await web.goto(base+'/extension');
- await web.getByRole('heading',{name:'Your clicks. On repeat.'}).waitFor();
+ await web.getByRole('heading',{name:'Client updates. On repeat.'}).waitFor();
  await web.screenshot({path:'screenshots/mimic-v4-desktop.png',fullPage:true});
  await web.getByRole('button',{name:/See it actually work/}).click();
  const first=await wait(async()=>{const s=await rpc('/state',undefined,'GET');return !s.activeRun&&s.runs[0]?.commandName==='Save your first reading'?s.runs[0]:null;});

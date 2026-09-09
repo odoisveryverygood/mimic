@@ -1,9 +1,9 @@
 {
   "name": "mimic-local",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "private": true,
   "type": "module",
-  "description": "Teach your browser a workflow. Turn it into a reusable command.",
+  "description": "Teach one client-portal update. Repeat it from a spreadsheet and check each result.",
   "scripts": {
     "dev": "node server/index.js --dev",
     "build": "vite build",

@@ -1,0 +1,4 @@
+record_id,status,note
+DEMO-104,In progress,Draft prepared for review
+DEMO-205,Ready for review,Internal checks complete
+DEMO-306,Waiting on client,Awaiting approved source material

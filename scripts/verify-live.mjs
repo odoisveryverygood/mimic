@@ -12,9 +12,9 @@ import {unzipSync,strFromU8} from 'fflate';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const identity=JSON.parse(fs.readFileSync(path.join(root,'extension/identity.json'),'utf8'));
 const base=identity.dashboardOrigin;
-for(const route of ['/','/studio','/practice','/extension','/privacy','/account','/downloads/mimic-browser-companion.zip','/api/cloud/config']){
+for(const route of ['/','/studio','/practice','/extension','/privacy','/docs','/docs/product-brief.md','/docs/workflow-playbook.md','/docs/beta-validation-plan.md','/docs/weekly-status.csv','/docs/contact-refresh.csv','/docs/handoff-notes.csv','/docs/beta-scorecard.csv','/account','/downloads/mimic-browser-companion.zip','/api/cloud/config']){
   const response=await fetch(`${base}${route}`);assert.equal(response.status,200,route);
-  if(route==='/')assert.match(await response.text(),/Your personal repeat button/,'Root serves the focused task interface');
+  if(route==='/')assert.match(await response.text(),/Client updates, on repeat/,'Root serves the focused task interface');
   if(route.endsWith('.zip')){
     const zip=unzipSync(new Uint8Array(await response.arrayBuffer()));
     const manifest=JSON.parse(strFromU8(zip['mimic-browser-companion/manifest.json']));

@@ -1,8 +1,8 @@
 # Chrome Web Store draft
 
-Name: Mimic — Teach once. Run your busywork.
+Name: Mimic — Client updates, on repeat.
 
-Summary: Record browser workflows, map CSV inputs, and run batches with outcome checks, review checkpoints, and clear results.
+Summary: Teach a client-portal update, repeat it from a spreadsheet, and check each result. Built for agency operations.
 
 Category: Workflow & Planning
 
@@ -10,7 +10,9 @@ Language: English
 
 ## Description
 
-Turn a browser task you repeat into a reusable workflow.
+Show Mimic one client-portal update. Give it your spreadsheet. It repeats the work and checks the result of each row.
+
+Start with recurring agency work: weekly status updates, approved contact changes, and internal handoff notes. These are workflow recipes to teach and test on your own portal, not prebuilt integrations or a promise of compatibility with every site. Read the workflow guide at https://mimic-aradhya.vercel.app/docs.
 
 Mimic lives in Chrome's side panel. Record the steps in your current tab or a new tab, review the inputs and checkpoints, and run them again with new values. Bring a CSV from Excel or Google Sheets to work through a list one row at a time.
 
