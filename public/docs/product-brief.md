@@ -1,58 +1,63 @@
-# Mimic: client updates, on repeat
+# Mimic: your personal repeat button
 
-Product direction · September 8, 2026
+Consumer product direction · September 8, 2026
 
 ## The promise
 
-Show Mimic one client-portal update. Give it your spreadsheet. It repeats the work and checks the result of each row.
+Less clicking. More living. Show Mimic a small task you do online, then repeat it with new details and see what happened.
 
-## Our first customer
+Mimic is a personal Chrome companion. It should feel like saving a shortcut for yourself: easy to try, easy to understand, and useful again next week.
 
-**Target hypothesis:** an operations coordinator or account manager at a small service agency who repeatedly transfers approved spreadsheet updates into a client's web portal. The likely buyer is the agency owner or operations lead; the person doing the work should be involved in evaluation.
+## Who it is for
 
-Start with agencies that have a recurring weekly task, a single-tab portal, an unambiguous record identifier, and a visible result that includes the updated record and values. Qualify out workflows that already have a satisfactory bulk import or API solution. A named customer portal must pass an observed trial before we describe it as supported.
+Everyday people who keep repeating the same few steps on the web. Our first audience to test is people who regularly collect things online: articles to read, school research, trip ideas, and items for a wishlist. The person using Mimic decides whether it is worth paying for.
 
-Agency size, time spent, willingness to pay, and the availability of these workflows are unvalidated. This brief is a product decision, not market research or evidence of demand.
+The first test group can include students, readers, hobbyists, and people planning a personal project. Choose people with a real recurring habit, not just people who enjoy trying new software. Their frequency of use, preferred destinations, and willingness to pay are unknown until observed.
 
-## The first job
+## The first useful moment
 
-When approved weekly statuses are ready in my spreadsheet, help me update the matching records in a client's portal and identify anything that needs review, so I can finish the handoff without repeatedly copying fields or guessing which rows saved.
+Open Mimic and click **See it actually work**. It saves a reading in the included Reading Room and checks the result. Then try the same task with something of your own: edit a title and link, run it, and see it appear on the shelf.
 
-**Before:** find a record, copy its new status and note, save, check the result, mark the spreadsheet, and repeat.
+For several items, choose **Run a list**, type the items directly, preview them, and start when ready. Spreadsheets and CSV files are optional. Do not ask people to understand column mapping before their first useful result.
 
-**With Mimic:** teach the full path from finding one record through saving and checking it; run once with another record; map a short CSV to those inputs; review the results and any uncertain row.
+## Three everyday stories
 
-The benefit to validate is less total operator time with correct outcomes. Include recording, checkpoints, review, and repair time in the comparison. Do not claim a percentage or hours saved before measuring it.
+1. **Keep good reads:** save articles or study links to a reading list, without repeatedly filling the same form.
+2. **Collect trip ideas:** keep links to places and activities in a personal list. Start with saving ideas; bookings are outside this first offer.
+3. **Keep a wishlist:** collect things to revisit later. Saving a link does not purchase anything or track its price.
 
-## Scope of the first offer
+All three have sample lists that work in the included Reading Room. Repeating a similar task on another website requires teaching and checking that site's steps. They are not automatic integrations with travel, shopping, or notes apps.
 
-1. Primary: weekly client-record status updates.
-2. Secondary hypothesis: refreshing approved contact details in a client portal.
-3. Secondary hypothesis: adding an internal handoff note to the correct record.
+## Why it might become a habit
 
-The [workflow playbook](workflow-playbook.md) defines inputs, checks, and limits. These are recipes to teach on the customer's site, not installed integrations or preconfigured working templates.
+The hypothesis is that saving a task once can remove repeated typing and clicking from a personal routine. The value is a shortcut people actually come back to, with visible outcomes and a clear stop when something needs attention.
 
-## Why someone might pay
+Validate this against what they do now, including bookmarks, copy and paste, autofill, and built-in save buttons. If the existing method is quicker, Mimic has not earned a place in that person's routine. Include teaching, waiting, review, and repairs when measuring any time saved.
 
-Mimic combines a demonstration in the user's browser, editable inputs from a spreadsheet, and a saved outcome for each attempted row. An uncertain result stops the list for review. The customer can use their existing login and inspect the work in the visible browser.
+## Consumer experience principles
 
-The commercial hypothesis is that this saves enough recurring operator time to justify a subscription while requiring little ongoing support. Validate that against the customer's current process and alternatives. Browser automation alone is not evidence of differentiation or willingness to pay.
+- Start with a real example. Never present an animation or sample receipt as a completed run.
+- Use “task,” “item,” “list,” and “what happened.” Keep selectors and other technical controls in Task details.
+- Let people type a list. Offer CSV import as an option for people who already have one.
+- Let people try the free tasks without signing up. Explain why an account is needed when they choose an account feature.
+- Keep website compatibility specific. Do not claim that Mimic works everywhere.
+- Show an uncertainty as something to inspect, not a successful result. Do not automatically retry a possible external save.
+- Keep the main screen focused on personal tasks; specialist tools belong in advanced settings.
 
-## Current delivery and limits
+## Free and paid
 
-- A Chrome side panel and hosted companion website are built. Installation is currently unpacked; Chrome Web Store publication is pending.
-- Recording, replay, editable inputs, CSV mapping, per-row outcome checks, and result export are implemented. The existing reading-form demo is a working practice exercise, not a customer-portal case study.
-- Workflows and CSV contents stay in the Chrome profile. Chrome must remain open; there is no unattended cloud execution or team library sync.
-- The initial supported shape is a single tab with ordinary browser controls. Multi-tab flows, embedded frames, file uploads, drag-and-drop, and CAPTCHA automation are outside this offer.
-- Free currently permits three custom tasks and three rows per list. The proposed Pro price is $15/month; paid checkout remains disabled pending payment setup and testing. This brief does not change pricing or quotas.
-- Login, ambiguous outcomes, and saved checkpoints can require human attention. Site changes can require a revised recording.
+The current free allowance is three custom tasks and three items per list, plus the practice task. Paid checkout is not open. Consumer pricing is undecided; a previous disabled backend price is not a validated consumer offer.
 
-## Positioning rules
+First observe repeat use. Then test a simple personal subscription with a clear allowance and cancellation flow. Do not promise a price, trial, or paid feature until it matches the implementation and checkout has been verified. A recurring subscription is only justified if the benefit recurs; occasional use may call for a different offer.
 
-Use: “Client updates, on repeat”; “Teach one update, repeat it from a spreadsheet, check each result”; “Built for repeatable client-portal work.”
+## Built now and boundaries
 
-Do not use: “works on every site,” “fully autonomous,” “guaranteed results,” “saves hours” without measured evidence, invented customer logos, or claims that AI planning is implemented.
+Recording, editable inputs, single runs, typed lists, optional CSV import, visible result checks, review checkpoints, and result export are implemented. The Reading Room stores its saved links in this browser. Your Mimic task library is stored in this Chrome profile.
 
-## Next decision
+Chrome must stay open. Some steps require your attention. There is no always-on cloud worker, automatic price monitoring, travel booking service, app-wide search, automatic current-page capture, or cross-device library sync. Embedded frames, multi-tab workflows, uploads, drag-and-drop, and CAPTCHA automation remain outside the current runner.
 
-Find five target users with a real recurring workflow. Observe a baseline, help them teach one low-risk task, and see whether they return for the next scheduled use. Follow the [beta validation plan](beta-validation-plan.md). No customer interviews, payments, or portal compatibility are established by publishing these documents.
+Backups can be exported. Full extension-library restore and automatic history cleanup remain launch work. Chrome Web Store publication and paid subscriptions also remain pending.
+
+## Validation, not assumptions
+
+The consumer direction is a product choice. Demand, retention, real-site compatibility, and willingness to pay are unvalidated. Use the [beta plan](beta-validation-plan.md) to observe five people trying a real personal task, then see whether they return unaided. Follow the [everyday guide](workflow-playbook.md) for the exact current experience.

@@ -1,9 +1,9 @@
 {
   "name": "mimic-local",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "private": true,
   "type": "module",
-  "description": "Teach one client-portal update. Repeat it from a spreadsheet and check each result.",
+  "description": "Your personal repeat button for everyday browser tasks.",
   "scripts": {
     "dev": "node server/index.js --dev",
     "build": "vite build",

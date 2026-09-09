@@ -13,7 +13,7 @@ async function handle(message,sender){
   if(sender.id!==chrome.runtime.id&&!origins.includes(sender.origin||new URL(sender.url).origin))throw new Error('This website is not allowed to connect to Mimic.');
   if(message?.channel!=='mimic-v1'||typeof message.path!=='string'||!['GET','POST','PUT','DELETE'].includes(message.method)||JSON.stringify(message).length>2_000_000)throw new Error('Invalid request.');
   const {store,engine,billing,batch}=await ready;const {path,method,body}=message;
-  if(path==='/state'&&method==='GET')return {...store.data,...engine.status(),token:'extension-managed',practiceUrl:`${identity.dashboardOrigin}/practice`,version:'4.0.1',connected:true,capabilities:['outcomes','repair-tests','batches','side-panel','visual-outcomes','current-tab'],batchActive:batch.active};
+  if(path==='/state'&&method==='GET')return {...store.data,...engine.status(),token:'extension-managed',practiceUrl:`${identity.dashboardOrigin}/practice`,version:'4.0.2',connected:true,capabilities:['outcomes','repair-tests','batches','side-panel','visual-outcomes','current-tab'],batchActive:batch.active};
   if(path==='/tabs/current'&&method==='GET'){
     if(sender.id!==chrome.runtime.id)throw Error('Use the side panel to record your current tab.');
     const [tab]=await chrome.tabs.query({active:true,lastFocusedWindow:true});

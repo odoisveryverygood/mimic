@@ -1,8 +1,8 @@
 # Chrome Web Store draft
 
-Name: Mimic — Client updates, on repeat.
+Name: Mimic — Your personal repeat button
 
-Summary: Teach a client-portal update, repeat it from a spreadsheet, and check each result. Built for agency operations.
+Summary: Teach everyday browser tasks once. Repeat them with new details, save time on routine clicks, and check the results.
 
 Category: Workflow & Planning
 
@@ -10,15 +10,15 @@ Language: English
 
 ## Description
 
-Show Mimic one client-portal update. Give it your spreadsheet. It repeats the work and checks the result of each row.
+Less clicking. More living. Show Mimic a small browser task once, then repeat it with new details and see what happened.
 
-Start with recurring agency work: weekly status updates, approved contact changes, and internal handoff notes. These are workflow recipes to teach and test on your own portal, not prebuilt integrations or a promise of compatibility with every site. Read the workflow guide at https://mimic-aradhya.vercel.app/docs.
+Save good reads, collect trip ideas, or keep a wishlist. Start with the real Reading Room example, then teach a task on a website you use. Other websites require their own recording and checks. Read the everyday guide at https://mimic-aradhya.vercel.app/docs.
 
-Mimic lives in Chrome's side panel. Record the steps in your current tab or a new tab, review the inputs and checkpoints, and run them again with new values. Bring a CSV from Excel or Google Sheets to work through a list one row at a time.
+Mimic lives in Chrome's side panel. Record the steps in your current tab or a new tab, review the inputs and checkpoints, and run them again with new values. Type items directly into a list. CSV import is available if you already have a spreadsheet. Preview the list and explicitly start it, then inspect each result.
 
 Pick a visible success message on the page. Mimic turns it into a final text check and substitutes unambiguous recorded inputs when you use new values. Mimic marks rows verified only after observing the expected result. If a row fails or Chrome is interrupted, the batch stops for review. You can inspect the destination, mark a row manually confirmed or skipped, and continue the pending rows. Completed rows are never automatically replayed.
 
-Free includes three custom workflows, a practice workflow, and batches of up to three rows. Pro is planned at $15/month for 100 workflows, up to 100 rows per batch, and 1,000 batch rows per calendar month. Pro checkout is currently unavailable.
+Free includes three custom workflows, a practice workflow, and batches of up to three rows. Paid plans are still being prepared; consumer pricing is not finalized and checkout is currently unavailable.
 
 Workflow and spreadsheet data are stored in your Chrome profile. The account server stores account, subscription, and usage records, not your CSV contents. Chrome displays a debugging indicator while Mimic controls the workflow tab.
 
@@ -51,13 +51,14 @@ Potentially handles authentication information (session token), user activity (u
 
 ## Reviewer test steps (free; no paid account required)
 
-1. Open Mimic from the toolbar to display the side panel.
-2. Choose Save a reading. Click Test with review, then Continue this step when it pauses before saving. Observe the Reading Room confirmation.
-3. Add final outcome selector #confirmation and text Saved; save it.
-4. Download the practice CSV and upload it. Column names map automatically. Create and review the batch.
-5. Start the batch. Each save checkpoints for review by default. Continue each requested action and observe three verified rows.
-6. Export Results. Review the CSV containing per-row status and observed result text.
-7. Set an impossible expected text and try a batch. It stops at the first failed row. Later rows stay pending.
+1. Open Mimic from the toolbar to display the side panel. Click See it actually work and observe a reading saved in the Reading Room with its exact title and shelf checked.
+2. Open Save your first reading, change its title and URL under Run once, and click Run task. Observe the changed saved result.
+3. Choose Run a list. Type the details for two items using Add another item. Preview my list, then Review batch. No spreadsheet is required.
+4. Start the batch and observe two verified items. Inspect Inputs & observed result, then Export results.
+5. Return to the task, choose Run a list, and try Use 3 example rows. CSV import is also available under Import a CSV file instead.
+6. Teach a task on the practice site, pick the exact success result, finish, and save. Try different inputs and check the result. Saved checkpoints pause for review.
+7. Set an impossible expected text in Task details and try a list. It stops at the first uncertain item and leaves later items pending. Inspect the site before confirming or skipping.
+8. Open Ideas & how-to guides to see the consumer examples and sample downloads. These examples do not imply external-site integrations.
 
 ## Submission checklist
 

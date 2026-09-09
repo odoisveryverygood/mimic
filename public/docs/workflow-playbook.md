@@ -1,79 +1,75 @@
-# Mimic agency workflow playbook
+# Mimic everyday guide
 
-September 8, 2026 · Three recipes to validate on a customer's portal
+A personal repeat button for the things you do online · September 8, 2026
 
-These are guides for teaching your own task. They are not prebuilt integrations. The CSV files contain fictional data and must be adapted before use on a real website. A CSV does not create a workflow by itself.
+## Try it in a minute
 
-## First, prove the basics
+1. Install and connect Mimic, then open **My tasks**.
+2. Click **See it actually work**. Mimic opens the included Reading Room, saves a reading, and checks the saved title and shelf.
+3. Open **Save your first reading**. Change the title and link under **Run once**, then choose **Run task**.
+4. Look at the saved result and the Reading Room. You have just reused a task with new details.
 
-Install and connect Mimic, then click **See it actually work** on My tasks. It fills the included reading form and checks the save. Open that practice task, choose **Run a list**, and select **Use 3 example rows** to learn mapping and row results. The agency CSVs below belong to your own agency recordings, not this reading example.
+This is a real browser action on Mimic's practice site. The built-in example does not sign you up for another service, send messages, or buy anything. It saves links in this browser, not to an external notes app.
 
-## Choose a suitable portal
+## Save several things without a spreadsheet
 
-Use a single-tab task with a repeatable path, a unique record identifier, and a visible outcome containing that identifier and the changed value. Sign in before recording. Start with test records or reversible edits you are authorized to make. Confirm the website permits your intended use.
+Open the saved practice task and choose **Run a list**. Enter the details for Item 1. Click **Add another item** for each additional item; free currently supports up to three.
 
-Prefer an existing bulk import if it already handles the job well. Avoid the initial pilot if it depends on embedded frames, multiple tabs, uploads, drag-and-drop, CAPTCHA, sending client messages, payments, or destructive changes.
+Choose **Preview my list**, then **Review batch**. Check the items and click **Start batch**. Nothing runs until you start it. Keep Chrome open and respond if a recorded checkpoint asks you to review a step.
 
-## 1. Weekly status updates — primary workflow
+For the Reading Room, the inputs are Reading title, Reading URL, and Shelf. Use Research, School, or Ideas as the shelf. These are the choices that the example site supports.
 
-**Job:** transfer approved status and note changes from an agency spreadsheet into the matching client records.
+If you already have a spreadsheet, expand **Import a CSV file instead**. Upload one of the samples below, or expand the option to paste CSV text. Match each input to its column and review the list. The practice samples use `title`, `link`, and `shelf` and match automatically.
 
-**CSV:** [weekly-status.csv](weekly-status.csv)
+## 1. A reading list you will actually revisit
 
-| Field | Meaning | Example |
-| --- | --- | --- |
-| record_id | Unique portal record identifier | DEMO-104 |
-| status | Exact option or text accepted by the portal | In progress |
-| note | Approved internal update | Draft prepared for review |
+**Try:** [reading-list.csv](reading-list.csv)
 
-**Teach:** open the portal's search page → search the unique identifier → open the matching record → choose the status → fill the note → save → select the visible saved record and changed status using **Pick success** → **Finish** → **Save task**.
+Save articles, school references, or things you want to read later. In the practice task, enter a title, link, and shelf. For example: “An article for later,” https://example.com/article, Research.
 
-Record the search from a repeatable starting page. Avoid baking the first record's identity into an unchanging link or selector. If opening a second record uses a different element, inspect **Task details** and verify the replay targets the right record before using a list.
+**Look for:** the correct title saved to the intended shelf. A generic “Saved” message does not identify the item.
 
-**Check:** a result such as “DEMO-104 — In progress” that changes when either the identifier or status changes. A generic “Saved” toast alone does not prove the correct record was updated. Review the expected text in Task details; short or ambiguous identifiers may need manual adjustment.
+**Make it yours:** if you use another reading-list website, teach its add-item form separately. Mimic does not automatically connect to it or infer information from the page you are viewing.
 
-**Trial:** run once with a second test record and different status. Inspect that record and confirm the original record was not overwritten. Only then map a three-row CSV and start the batch.
+## 2. A little collection of trip ideas
 
-## 2. Contact refresh — secondary hypothesis
+**Try:** [trip-ideas.csv](trip-ideas.csv)
 
-**Job:** update approved contact details for existing client records without creating duplicate contacts.
+Collect links to places and activities you want to look at later. The sample uses the Reading Room's Ideas shelf; it is a practice collection of links, not a travel itinerary or recommendation.
 
-**CSV:** [contact-refresh.csv](contact-refresh.csv)
+**Look for:** the exact idea title saved to Ideas. The three example links are placeholders. Replace them with links you chose when making your own collection.
 
-Fields: `record_id`, `contact_name`, `contact_email`. Email examples use the reserved example.com domain.
+**Make it yours:** teach a supported personal planning website to add a title and link. Keep the first task to saving ideas. Mimic does not make reservations, compare live prices, or coordinate with your calendar.
 
-**Teach:** search a unique record ID → open contact details in the same tab → replace name and email → save → pick a visible result containing the record ID and new email → finish and save the task.
+## 3. A wishlist without the repeated typing
 
-**Check:** confirm the correct record has the new email. Keep the record ID as the lookup key; do not rely on a non-unique person's name. Begin with test contacts, and ensure this action does not trigger notifications or invitations.
+**Try:** [wishlist.csv](wishlist.csv)
 
-**Trial:** change a second record with a distinct email, inspect both records, then try three rows. A portal with a good contact import may not be a useful Mimic customer for this job.
+Save links to things you want to revisit. The practice task stores a title and link on the Ideas shelf; it does not purchase items, add them to a shopping cart, or monitor prices.
 
-## 3. Internal handoff note — secondary hypothesis
+**Look for:** the right item title on the right shelf. Inspect what appeared rather than assuming that a click succeeded.
 
-**Job:** place an approved internal handoff note on the correct client record.
+**Make it yours:** teach the add-item form on your own list website and test it with another item. Do not assume a shopping site's buttons behave like the practice form.
 
-**CSV:** [handoff-notes.csv](handoff-notes.csv)
+## Teach your own small task
 
-Fields: `record_id`, `note_ref`, `note`. A unique note reference such as HANDOFF-DEMO-104 helps identify the exact saved note.
+1. Sign in to the website normally. Choose a task in one tab that follows the same steps each time and ends with a visible result.
+2. Open Mimic's side panel and click **Teach a task**. Name it something recognizable, such as “Save a link to my reading list.”
+3. Select the tab, start recording, and do the task once. Pause recording for anything you do not want captured.
+4. Choose **Pick success** and click the visible result that identifies what was saved. Finish and save the task.
+5. Change the details and run once. Check the actual website. If a second item does not work, revise the recording before using a list.
+6. When it is reliable, type a short list and preview it. Follow any review checkpoints during the run.
 
-**Teach:** search the record ID → open its internal notes section → fill the note reference and note → save → pick a visible result containing the record ID and note reference → finish and save.
+No ready-made connection to another site is implied. Avoid tasks that need multiple tabs, embedded frames, uploads, drag-and-drop, or CAPTCHA handling in this version. Choose a simple personal task you can inspect first.
 
-**Check:** identify the specific new internal note, not a generic confirmation. If the portal has no separate reference field, include the reference in the note and adjust the spreadsheet mapping accordingly. Check that “save note” does not also send a message.
+## When something needs a look
 
-**Trial:** use a disposable record first. Appending notes can create duplicates, so an uncertain result must be inspected before any rerun. Mimic pauses uncertain batch rows; it cannot undo an external save.
+Mimic stops an uncertain list item for review. Open the website and check what happened. Confirm it only when you see the intended result, or skip it with a note. Then continue the waiting items. Do not rerun the whole list blindly: an earlier save might already have happened.
 
-## Run a list
+“Verified” means the visible check you selected passed. “Confirmed by you” means you inspected it manually. A skipped item is not completed work. For short or ambiguous expected text, review the success check in **Task details**.
 
-1. Teach and save a task with a final success check.
-2. Run once using different inputs and inspect the actual website result.
-3. Choose **Run a list**. Upload or paste your CSV.
-4. Map each learned input to the matching spreadsheet column. Labels depend on the website; they may differ from these CSV headings. If an input is missing or an irrelevant field is required, revise the task first.
-5. Choose **Review batch** and check each row before **Start batch**. Free supports three rows per list; do not promise paid capacity before billing is ready.
-6. Keep Chrome open. Complete any review checkpoints. Inspect **Activity** and export the results.
-7. If a row needs review, inspect the website. Confirm it only when you observed the intended result; otherwise skip with a truthful note. Continue pending rows. Do not restart the entire list blindly.
+## Where your things live
 
-## What a result means
+Tasks and recordings stay in the current Chrome profile. Reading Room links are kept in this browser's local storage. These are not cross-device backups. Keep Chrome open during a task. Export your task library from Settings before removing the extension; full extension-library restore is not yet available.
 
-“Verified” means the configured visible outcome check passed. It is only as strong as the text and element you selected; it is not an independent audit of the portal's database. “Confirmed by you” records your manual review. “Skipped” is not completed work.
-
-Retain the source CSV and exported results. Back up the local library before updating or removing the extension. Full extension-library restore and automatic history cleanup remain launch work; do not treat backup export alone as a tested recovery system.
+The free version currently has three custom tasks and three items per list. Account signup is optional for those local tasks. Paid checkout and a normal Chrome Web Store installation are still being prepared.

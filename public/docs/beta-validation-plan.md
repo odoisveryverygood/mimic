@@ -1,74 +1,78 @@
-# Mimic beta validation plan
+# Mimic consumer beta plan
 
-September 8, 2026 · Proposed research plan; no completed customer evidence yet
+September 8, 2026 · Proposed plan, not completed research
 
-## Question to answer
+## What we need to learn
 
-Will small agencies repeatedly use and pay for teaching client-portal updates once, running them from spreadsheets, and reviewing a result for each row?
+Will an everyday person teach Mimic a personal browser task, use it again without help, and get enough recurring value to pay for it?
 
-The first target is weekly status updates. Contact refresh and internal handoff notes are secondary hypotheses. Do not test all three at once if the primary job has not produced repeat use.
+The first habit to test is collecting online finds: good reads, study links, trip ideas, and wishlist items. These are three examples of one underlying behavior, not three separate products.
 
-## Recruit five initial participants
+## Find five people with the habit
 
-Look for an agency operations lead, account manager, or coordinator who personally does a weekly spreadsheet-to-portal update. Ask which exact site, what record type, how many rows, how often, and how the work is done today. Ask whether the site has a bulk import or API that already solves it. The portal name, task volume, pain, and budget remain unknown until a participant provides evidence.
+Look for readers, students, hobbyists, and people planning something for themselves who already save or copy online information regularly. Ask about the last actual time they did it. Choose a task they own, a website they use, and a result they can inspect. Do not count enthusiasm about AI or a hypothetical task as evidence of need.
 
-Recruitment is a proposed next action. These documents do not send outreach, enroll anyone, or collect customer data. Obtain permission before observing a session. Keep interview notes outside this public repository, use participant codes, and never store credentials or raw client records in the evidence log.
+Recruitment and interviews are future actions. No outreach, enrollment, or analytics collection is performed by creating this plan. Use participant codes and keep populated notes outside this public repository. Do not collect credentials or personal page contents in a public scorecard.
 
-## Interview guide
+## Questions before the demo
 
-1. Walk me through the last time you did this task. What triggered it?
-2. Show a sanitized spreadsheet and the exact browser path, if permitted.
-3. How often does it recur? How many rows did the last run contain?
-4. Where do mistakes or interruptions happen, and how do you discover them?
-5. What have you tried already? Why did you stop using it?
-6. What would prevent you from installing an extension for this work?
-7. Who could approve a subscription, and what do you currently spend on the task?
-8. After the pilot, would you choose to use Mimic for the next scheduled occurrence?
+1. What is a small task you keep doing on the web?
+2. Walk me through the last time you did it. What were you trying to finish?
+3. How often does it happen, and what do you use now?
+4. Which part feels repetitive or annoying? Which part do you enjoy doing yourself?
+5. Would a bookmark, autofill, or the website's own save button already solve it?
+6. What would make you comfortable installing and using this extension?
+7. When would this task naturally come up again?
 
-Ask about observed behavior before presenting pricing. Do not treat positive reactions, hypothetical intent, or an interview as a purchase.
+After they have used it, ask what they would miss if it disappeared. Explore what the repeated benefit is worth to them. Do not translate “looks cool” or “I would pay” into a purchase.
 
-## Run an observed pilot
+## Observe the first session
 
-1. **Baseline:** time a small manual batch. Record row count, task shape, operator minutes, errors, and correction time. Use sanitized or authorized test records.
-2. **First use:** let the participant try setup and the practice task. Record where help was required and the time to the first verified practice result.
-3. **Real task:** teach one low-risk portal task. Replay on a second record, then use three rows. Independently inspect every attempted row on the website, including untouched records that could have been targeted incorrectly.
-4. **Comparison:** count teaching, checkpoint, review, repair, and support time. Compare similar work; report setup cost separately from repeat-run cost. If the samples differ materially, label the comparison inconclusive.
-5. **Return:** observe the next scheduled occurrence. Distinguish unaided use from a founder-operated demonstration. Weekly usage is meaningful only if the work actually recurs weekly.
-6. **Payment:** after value is demonstrated and checkout is tested and enabled, offer the proposed $15/month plan. Record a real successful payment separately from “would pay.” Verify cancellation and support expectations.
+**First success:** let them find the practice button, run it, and explain what happened. Record setup time, help needed, and whether they understand where the result lives. Never count a founder-operated run as unaided success.
 
-## Evidence log
+**Their own use:** let them change one title and link, then type two items using Run a list. Record confusion around selecting a task, previewing items, checkpoints, and checking results. CSV knowledge should not be needed.
 
-Use [beta-scorecard.csv](beta-scorecard.csv) as a blank local template. Add one row per observed participant session. Keep populated copies private. Suggested evidence is a consented observation note, sanitized result export, follow-up confirmation, or provider-confirmed payment; never fabricate missing values.
+**Real fit:** choose one small personal task on a website they actually use. Observe the manual baseline, teach the task, and replay with new details. Inspect every intended result on the destination website. If the site is unsupported, record that as a compatibility finding rather than evidence that the person does not need help.
 
-Definitions:
+**Fair comparison:** include teaching, clicking, waiting, review, and correction time. Compare similar tasks and separate first-use cost from later use. Do not advertise savings from an incomparable sample.
+
+## Observe the return
+
+Follow up at the next time they said the task would recur. Record whether they chose Mimic without help, what it completed, what failed, and whether it was easier than their usual method. An occasional task does not need weekly use to be useful, but a monthly subscription needs a recurring reason to exist.
+
+Once checkout is actually ready, test a clearly priced personal offer with people who have already returned. Consumer pricing is undecided. Record a provider-confirmed payment separately from stated interest, and observe cancellation or refunds honestly. Do not activate payment collection as part of the interview plan.
+
+## Record evidence
+
+Use [beta-scorecard.csv](beta-scorecard.csv) as a blank template, one row per observed session. Keep populated copies private. Evidence references should point to consented, sanitized notes or result exports, never passwords, payment details, or raw personal browsing history.
 
 - **Verified:** directly observed or supported by a specific artifact.
-- **Inference:** interpretation of evidence; state the basis.
-- **Unknown:** not checked, unavailable, or no evidence yet. Unknown is not a negative finding.
-- **Correct completion:** the intended record and changed values were independently inspected on the actual portal.
-- **False success:** Mimic reported success but the intended change was missing or wrong.
-- **Repeat use:** the customer used Mimic for a later occurrence of their real task.
-- **Net operator time saved:** comparable manual operator time minus recording, operation, review, and repair time. Keep first-use and repeat-use figures separate. Do not replace missing observations with estimates presented as measurements.
+- **Inference:** an interpretation with a stated basis.
+- **Unknown:** not checked or no evidence available; not a negative finding.
+- **First success:** the person completes and understands a real checked task.
+- **Repeat use:** they choose Mimic for a later occurrence of a personal task.
+- **False success:** Mimic says it worked but the intended result is missing or wrong.
+- **Time saved:** a comparable manual session minus the full Mimic effort, including setup, review, and repairs. Keep first use and repeat use separate.
 
-## Proposed decision gates
+## Our proposed gates
 
-These are our operating choices, not industry benchmarks or achieved results.
+These are project decisions, not industry benchmarks or achieved results.
 
-Continue a focused beta when five suitable users have tried a real task, at least three return for a later occurrence, and the target workflow completes correctly with acceptable review and support time. Any false success or unintended duplicate must be investigated before expanding use.
+Continue this direction when five suitable people have tried a real personal task and at least three return for another occurrence with little help. Investigate every false success or unintended duplicate before expanding use.
 
-Start broader paid distribution after the payment and store launch requirements are complete and at least three customers have actually paid and returned. Calculate hosting, payment, and support costs before claiming the $15 plan is sustainable.
+Expand a paid beta only after installation, payments, and support are ready and at least three people have actually paid and returned. Include payment fees, hosting, and support time when evaluating whether the offer is sustainable.
 
-Reconsider the segment if the workflow rarely recurs, a native import already does the job, permissions prevent adoption, the browser path is unsupported, or fixing each recording costs more than the saved work. Document the evidence and revise the target before adding broad new features.
+Reconsider the task or experience if most people cannot teach it, their existing method is faster, they do not return, or they need repeated personal support. Use that evidence to simplify the product before adding more capabilities.
 
 ## Current evidence register
 
-| Claim | Status | Basis / next check |
+| Claim | Status | Next check |
 | --- | --- | --- |
-| Recorder, replay, and checked batches are implemented | Verified in project tests | Existing Mimic verification; does not establish compatibility with a customer portal |
-| Agencies need this particular workflow | Unknown | Observe five qualified participants |
-| A specific external portal is supported | Unknown | Validate the exact workflow on that portal |
-| Mimic reduces total operator time | Unknown | Measure comparable manual and Mimic sessions |
-| $15/month is acceptable and sustainable | Unknown | Observe payments, repeat use, and support costs |
-| The target customer will return weekly | Unknown | Observe the next real occurrence |
+| Recording, replay, and checked lists are implemented | Verified in project testing | Continue checking releases; practice tests do not prove every website works |
+| Everyday users want this personal shortcut | Unknown | Observe five people with a real recurring habit |
+| First use is understandable without help | Unknown | Watch setup and the first result |
+| It works on a person's chosen external site | Unknown | Teach and inspect that exact task |
+| It saves effort compared with their usual method | Unknown | Measure comparable attempts |
+| People return and will pay | Unknown | Observe later use and real payments once checkout is ready |
 
-No automated analytics, waitlist, outreach, or payment activation is added by this plan.
+No customer adoption, revenue, testimonials, or measured time savings are claimed by this plan.

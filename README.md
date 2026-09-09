@@ -1,10 +1,10 @@
 # Mimic
 
-**Client updates, on repeat.** Show Mimic one client-portal update, repeat it from a spreadsheet, and check the result of each row. Our initial customer hypothesis is agency operators doing recurring portal updates.
+**Less clicking. More living.** Mimic is your personal repeat button for everyday browser tasks. Show it how to save a reading, keep a trip idea, or add something to a personal list; reuse the task with new details and check what happened.
 
-Read the [live workflow guide](https://mimic-aradhya.vercel.app/docs), [product brief](public/docs/product-brief.md), [workflow playbook](public/docs/workflow-playbook.md), and [beta validation plan](public/docs/beta-validation-plan.md). Sample CSVs and a blank beta scorecard are in [public/docs](public/docs). These recipes require a recording on the customer's site; demand, pricing, and external portal compatibility remain unvalidated.
+Open the [everyday guide](https://mimic-aradhya.vercel.app/docs). The [product brief](public/docs/product-brief.md) defines the consumer direction, the [how-to guide](public/docs/workflow-playbook.md) covers the current experience, and the [beta plan](public/docs/beta-validation-plan.md) tests real personal use and willingness to pay. Three sample lists work in the included Reading Room. Other websites need their own recording and verification.
 
-The Chrome side panel provides recording, replay, editable inputs, CSV batches, and saved outcome checks. The older business, repair, and admin workspaces remain available in the advanced studio.
+**Version 4.0.2:** Consumer welcome screen, everyday examples, and typed list entry so a spreadsheet is optional. The free allowance remains three custom tasks and three items per list. Paid checkout is not open, and consumer pricing remains unvalidated.
 
 **Version 4:** Open [Mimic](https://mimic-aradhya.vercel.app) and click **See it actually work**. Teach by doing, pick success on the page, then run once or use a list. See [RELEASE-V4.md](RELEASE-V4.md) for the redesign and verification. The original four workspaces remain in the [advanced studio](https://mimic-aradhya.vercel.app/studio).
 

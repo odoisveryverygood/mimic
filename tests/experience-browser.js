@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 const wait=async(fn,timeout=35000)=>{const start=Date.now();while(Date.now()-start<timeout){const v=await fn();if(v)return v;await new Promise(r=>setTimeout(r,100));}throw Error('New experience timed out');};
 export async function verifyExperience(context,rpc,extensionId,base){
  const web=await context.newPage(),errors=[];web.on('pageerror',e=>errors.push(e.message));await web.setViewportSize({width:1440,height:1020});await web.goto(base+'/extension');
- await web.getByRole('heading',{name:'Client updates. On repeat.'}).waitFor();
+ await web.getByRole('heading',{name:'Your clicks. On repeat.'}).waitFor();
  await web.screenshot({path:'screenshots/mimic-v4-desktop.png',fullPage:true});
  await web.getByRole('button',{name:/See it actually work/}).click();
  const first=await wait(async()=>{const s=await rpc('/state',undefined,'GET');return !s.activeRun&&s.runs[0]?.commandName==='Save your first reading'?s.runs[0]:null;});
@@ -14,6 +14,33 @@ export async function verifyExperience(context,rpc,extensionId,base){
  await web.getByRole('button',{name:'Run a list',exact:true}).click();await web.getByRole('button',{name:'Use 3 example rows',exact:true}).click();await web.getByRole('button',{name:'Review batch',exact:true}).click();await web.getByRole('button',{name:'Start batch',exact:true}).click();
  const batch=await wait(async()=>{const s=await rpc('/state',undefined,'GET');return !s.batchActive&&s.batches[0]?.status==='completed'?s.batches[0]:null;});assert.deepEqual(batch.rows.map(r=>r.status),['verified','verified','verified']);assert.match(batch.rows[2].output,/Class reading.*School/);
  await web.getByText('Completed',{exact:true}).waitFor();await web.locator('.row-result summary').first().click();await web.screenshot({path:'screenshots/mimic-v4-list.png',fullPage:true});
+ // Everyday users can enter a list without a file or column mapping. Edits invalidate an old preview.
+ await web.getByRole('navigation',{name:'Main navigation'}).getByRole('button',{name:'My tasks',exact:true}).click();
+ await web.getByRole('button',{name:/Save your first reading.*editable inputs/}).click();
+ await web.getByRole('button',{name:'Run a list',exact:true}).click();
+ await web.getByLabel('Item 1: Reading title',{exact:true}).fill('An article, "for later"');
+ await web.getByLabel('Item 1: Reading URL',{exact:true}).fill('https://example.com/consumer-reading');
+ await web.getByLabel('Item 1: Shelf',{exact:true}).selectOption('Research');
+ await web.getByRole('button',{name:'Add another item',exact:true}).click();
+ await web.getByLabel('Item 2: Reading title',{exact:true}).fill('A weekend idea');
+ await web.getByLabel('Item 2: Reading URL',{exact:true}).fill('https://example.com/consumer-weekend');
+ await web.getByLabel('Item 2: Shelf',{exact:true}).selectOption('Ideas');
+ await web.getByRole('button',{name:'Add another item',exact:true}).click();
+ assert.equal(await web.getByRole('button',{name:'Add another item',exact:true}).isDisabled(),true);
+ await web.getByRole('button',{name:'Remove item 3',exact:true}).click();
+ await web.getByRole('button',{name:'Preview my list',exact:true}).click();
+ assert.equal(await web.getByRole('button',{name:'Review batch',exact:true}).isVisible(),true);
+ assert.equal(await web.locator('.mapping').count(),0,'Typed items must not require spreadsheet column mapping');
+ await web.screenshot({path:'screenshots/mimic-consumer-list.png',fullPage:true});
+ await web.getByLabel('Item 2: Reading title',{exact:true}).fill('A new weekend idea');
+ assert.equal(await web.getByRole('button',{name:'Review batch',exact:true}).count(),0,'Editing an item must invalidate the prepared list');
+ await web.getByRole('button',{name:'Preview my list',exact:true}).click();
+ await web.getByRole('button',{name:'Review batch',exact:true}).click();
+ await web.getByRole('button',{name:'Start batch',exact:true}).click();
+ const typed=await wait(async()=>{const s=await rpc('/state',undefined,'GET');return !s.batchActive&&s.batches[0]?.status==='completed'&&s.batches[0]?.rows[0]?.values.title==='An article, "for later"'?s.batches[0]:null;});
+ assert.deepEqual(typed.rows.map(row=>row.status),['verified','verified']);
+ assert.equal(typed.rows[0].output,'Saved “An article, "for later"” to Research.');
+ assert.equal(typed.rows[1].output,'Saved “A new weekend idea” to Ideas.');
  const panel=await context.newPage();panel.on('pageerror',e=>errors.push(e.message));await panel.setViewportSize({width:400,height:890});await panel.goto(`chrome-extension://${extensionId}/panel.html`);
  await panel.getByRole('button',{name:'Teach a task',exact:true}).click();await panel.getByLabel('Give this task a name').fill('Save an idea visually');await panel.getByLabel('Website to open').fill(base+'/practice');await panel.getByRole('button',{name:'Start recording',exact:true}).click();
  const target=await wait(async()=>{const pages=context.pages().filter(p=>p.url()===base+'/practice');for(const p of pages)if(await p.locator('[data-mimic-toolbar-host]').count())return p;});
@@ -39,5 +66,5 @@ export async function verifyExperience(context,rpc,extensionId,base){
  await live.reload();assert.equal(await live.locator('[data-mimic-toolbar]').count(),0,'Stopping must remove future recorder injection');
  await web.setViewportSize({width:390,height:844});await web.getByRole('navigation',{name:'Main navigation'}).getByRole('button',{name:'My tasks',exact:true}).click();assert.equal(await web.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await web.screenshot({path:'screenshots/mimic-v4-mobile.png',fullPage:true});
  assert.deepEqual(errors,[]);await web.close();await panel.close();await live.close();
- return {quickstart:'one-click run verified',lists:'three different rows verified',teaching:'visual picker → save → changed-input replay',currentTab:'no reload; stale and external callers rejected; repeated recording works',pageErrors:0};
+ return {quickstart:'one-click run verified',lists:'three different rows verified',typedLists:'two items entered without CSV; edited values and punctuation preserved; stale preview invalidated',teaching:'visual picker → save → changed-input replay',currentTab:'no reload; stale and external callers rejected; repeated recording works',pageErrors:0};
 }
